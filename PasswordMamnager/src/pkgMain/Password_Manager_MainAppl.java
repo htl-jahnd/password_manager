@@ -10,6 +10,11 @@ import javafx.stage.Stage;
 
 public class Password_Manager_MainAppl extends Application
 {
+	
+	//naming conventions fxml;
+	//web accounts: 
+		//Buttons: btnWebAccount<function>
+		//Methods: onSelectButtonWebAccount
 
 	public static void main(String[] args) throws Exception
 	{
@@ -21,7 +26,7 @@ public class Password_Manager_MainAppl extends Application
 	{
 		try
 		{
-			BorderPane root = FXMLLoader.load(getClass().getResource("ressources/PasswordManager.fxml"));
+			Parent root = FXMLLoader.load(getClass().getResource("ressources/PasswordManager.fxml"));
 			Scene scene = new Scene(root);
 			scene.getStylesheets().add(getClass().getResource("ressources/stylesheet.css").toExternalForm());
 			primaryStage.setTitle("Sign Up");

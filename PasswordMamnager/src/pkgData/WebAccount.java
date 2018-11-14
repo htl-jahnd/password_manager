@@ -2,31 +2,49 @@ package pkgData;
 
 import java.net.URL;
 
+import javafx.scene.image.Image;
+
+/**
+ * @author david.jahn
+ *
+ */
 public class WebAccount
 {
-
+	private String name;
 	private String websiteName;
 	private URL websiteURL;
 	private String username;
 	private String password;
 	private String additionalInformation;
+	private Image thumbnail;
 
-	public WebAccount(String websiteName, URL websiteURL, String username, String password,
-			String additionalInformation)
+	public WebAccount(String name, String websiteName, URL websiteURL, String username, String password,
+			String additionalInformation, Image thumbnail)
 	{
 		super();
+		this.name = name;
 		this.websiteName = websiteName;
 		this.websiteURL = websiteURL;
 		this.username = username;
 		this.password = password;
 		this.additionalInformation = additionalInformation;
+		this.thumbnail = thumbnail;
 	}
 
-	@Override
-	public String toString()
+	public WebAccount(String name, String websiteName, URL websiteURL, String username, String password,
+			String additionalInformation)
 	{
-		return "WebAccount [websiteName=" + websiteName + ", websiteURL=" + websiteURL + ", username=" + username
-				+ ", password=" + password + ", additionalInformation=" + additionalInformation + "]";
+		this(name, websiteName, websiteURL,username, password, additionalInformation, new Image("../pkgMain/ressources/images/default_icon_web_account.png",40,40,false,false));
+	}
+
+	public String getName()
+	{
+		return name;
+	}
+
+	public void setName(String name)
+	{
+		this.name = name;
 	}
 
 	public String getWebsiteName()
@@ -77,6 +95,16 @@ public class WebAccount
 	public void setWebsiteURL(URL websiteURL)
 	{
 		this.websiteURL = websiteURL;
+	}
+
+	public Image getThumbnail()
+	{
+		return thumbnail;
+	}
+
+	public void setThumbnail(Image thumbnail)
+	{
+		this.thumbnail = thumbnail;
 	}
 
 }
