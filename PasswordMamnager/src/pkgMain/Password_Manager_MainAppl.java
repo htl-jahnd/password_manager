@@ -24,7 +24,6 @@ public class Password_Manager_MainAppl extends Application
 			BorderPane root = FXMLLoader.load(getClass().getResource("ressources/PasswordManager.fxml"));
 			Scene scene = new Scene(root);
 			scene.getStylesheets().add(getClass().getResource("ressources/stylesheet.css").toExternalForm());
-			System.out.println(getClass().getResource("ressources/stylesheet.css").toExternalForm());
 			primaryStage.setTitle("Sign Up");
 			primaryStage.setScene(scene);
 
