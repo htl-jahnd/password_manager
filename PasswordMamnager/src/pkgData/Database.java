@@ -115,7 +115,7 @@ public class Database
 	// ----------------------- MISC THINGS ------------------------
 	// ------------------------------------------------------------
 
-	public static Database newInstance() throws Exception
+	public static Database newInstance() throws Exception 
 	{
 		if (instance == null)
 		{
