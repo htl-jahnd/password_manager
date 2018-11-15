@@ -10,6 +10,9 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
@@ -95,6 +98,8 @@ public class Controller_PasswordManager
 
 	private ObservableList<WebAccount> listWebAccounts;
 	private Database db;
+	private WebAccount currentAccount = null;
+	private boolean webAccountPasswordVisible;
 
 	// ------------------------------------------------------------
 	// ---------------------- FXML METHODS ------------------------
@@ -105,7 +110,7 @@ public class Controller_PasswordManager
 	{
 		listWebAccounts = FXCollections.observableArrayList();
 		listViewWebAccount.setItems(listWebAccounts);
-		
+
 	}
 
 	@FXML
@@ -116,19 +121,35 @@ public class Controller_PasswordManager
 			// TODO
 		} else if (event.getSource().equals(btnWebAccountCancelEdit))
 		{
-			// TODO
+			doFillTextFieldsWebAccount();
+			paneWebAccountSaveCancelEdit.setVisible(false);
 		} else if (event.getSource().equals(btnWebAccountDelete))
 		{
-			// TODO
+			doShowDeleteDialogWebAccount();
 		} else if (event.getSource().equals(btnWebAccountEdit))
 		{
-			// TODO
+			doSetTextFieldsWebAccountEditable(true);
+			paneWebAccountSaveCancelEdit.setVisible(true);
 		} else if (event.getSource().equals(btnWebAccountSaveEdit))
 		{
 			// TODO
 		} else if (event.getSource().equals(btnWebAccountShowHidePassword))
 		{
-			// TODO
+			if (webAccountPasswordVisible)
+			{
+				String pwd = txtWebAccountPassword.getText();
+				pwdWebAccountPassword.setVisible(true);
+				txtWebAccountPassword.setVisible(false);
+				pwdWebAccountPassword.setText(pwd);
+				webAccountPasswordVisible=false;
+			} else
+			{
+				String pwd = pwdWebAccountPassword.getText();
+				pwdWebAccountPassword.setVisible(false);
+				txtWebAccountPassword.setVisible(true);
+				txtWebAccountPassword.setText(pwd);
+				webAccountPasswordVisible = true;
+			}
 		}
 		// copy buttons down here
 		else if (event.getSource().equals(btnWebAccountCopyAdditionalInformation))
@@ -147,6 +168,39 @@ public class Controller_PasswordManager
 		{
 			// TODO
 		}
+
+	}
+
+	private void doSetTextFieldsWebAccountEditable(boolean state)
+	{
+		txtWebAccountName.setEditable(state);
+		if (webAccountPasswordVisible == true)
+		{
+			txtWebAccountPassword.setEditable(state);
+		} else
+			pwdWebAccountPassword.setEditable(state);
+
+		txtWebAccountURL.setEditable(state);
+		txtWebAccountUsername.setEditable(state);
+		txtWebAccountAdditionalInformation.setEditable(state);
+	}
+
+	private void doShowDeleteDialogWebAccount()
+	{
+		Alert alert = new Alert(AlertType.CONFIRMATION, "Delete " + currentAccount + " ?", ButtonType.YES,
+				ButtonType.NO, ButtonType.CANCEL);
+		alert.showAndWait();
+
+		if (alert.getResult() == ButtonType.YES)
+		{
+			db.deleteWebAccount(currentAccount);
+			// TODO set details pane invisible
+		}
+	}
+
+	private void doFillTextFieldsWebAccount()
+	{
+		// TODO Auto-generated method stub
 
 	}
 

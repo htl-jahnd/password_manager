@@ -1,133 +1,124 @@
 package pkgMisc;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
+import java.nio.ByteBuffer;
+import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.security.AlgorithmParameters;
+import java.security.InvalidAlgorithmParameterException;
+import java.security.InvalidKeyException;
+import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.security.spec.InvalidKeySpecException;
-import java.security.spec.KeySpec;
-import java.util.Optional;
-import java.util.Random;
-
+import java.security.spec.InvalidParameterSpecException;
+import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
-import javax.crypto.CipherInputStream;
-import javax.crypto.CipherOutputStream;
+import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.NoSuchPaddingException;
 import javax.crypto.SecretKey;
 import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.PBEKeySpec;
 import javax.crypto.spec.SecretKeySpec;
 
+import org.apache.commons.codec.binary.Base64;
+
 public class PasswordUtils
 {
-	private static byte[] salt;
-	private static final int SALT_LEN = 8;
-	private static byte[] ivspec_bytes;
 
-	public static byte[] encrypt(byte[] plainText, SecretKey secret) throws Exception
+	public static final int SALT_LENGTH = 16;
+	private static final Charset STANDARD_CHARSET = StandardCharsets.UTF_8;
+
+	public static byte[] generateSalt(int length)
 	{
-		final SecureRandom rng = new SecureRandom();
-		final byte[] ciphertext;
-		final ByteArrayOutputStream baos = new ByteArrayOutputStream();
+		SecureRandom random = new SecureRandom();
+		byte bytes[] = new byte[length];
+		random.nextBytes(bytes);
+		return bytes;
+	}
 
-		final Cipher aesCBC = Cipher.getInstance("AES/CBC/PKCS5Padding");
-		final IvParameterSpec ivForCBC = createIV(aesCBC.getBlockSize(), Optional.of(rng));
-		aesCBC.init(Cipher.ENCRYPT_MODE, secret, ivForCBC);
+	public static String encrypt(String str, String password)
+			throws NoSuchAlgorithmException, NoSuchPaddingException, IOException, IllegalBlockSizeException,
+			BadPaddingException, InvalidParameterSpecException, InvalidKeyException, InvalidKeySpecException
+	{
+		byte[] saltBytes = generateSalt(SALT_LENGTH);
 
-		baos.write(ivForCBC.getIV());
-		try (final CipherOutputStream cos = new CipherOutputStream(baos, aesCBC))
+		// Derive the key
+		SecretKeyFactory factory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1");
+		PBEKeySpec spec = new PBEKeySpec(password.toCharArray(), saltBytes, 65536, 256);
+
+		SecretKey secretKey = factory.generateSecret(spec);
+		SecretKeySpec secret = new SecretKeySpec(secretKey.getEncoded(), "AES");
+
+		// encrypt the message
+		Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
+		cipher.init(Cipher.ENCRYPT_MODE, secret);
+		AlgorithmParameters params = cipher.getParameters();
+		byte[] ivBytes = params.getParameterSpec(IvParameterSpec.class).getIV();
+		byte[] encryptedTextBytes = cipher.doFinal(str.getBytes(STANDARD_CHARSET));
+
+		// prepend the salt and IV
+		byte[] buffer = new byte[saltBytes.length + ivBytes.length + encryptedTextBytes.length];
+		System.arraycopy(saltBytes, 0, buffer, 0, saltBytes.length);
+		System.arraycopy(ivBytes, 0, buffer, saltBytes.length, ivBytes.length);
+		System.arraycopy(encryptedTextBytes, 0, buffer, saltBytes.length + ivBytes.length, encryptedTextBytes.length);
+		return new Base64().encodeToString(buffer);
+
+	}
+
+	public static String decrypt(String str, String password) throws InvalidKeySpecException, NoSuchAlgorithmException,
+			InvalidKeyException, InvalidAlgorithmParameterException, IllegalBlockSizeException, BadPaddingException,
+			NoSuchPaddingException, UnsupportedEncodingException
+	{
+		Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
+
+		// strip off the salt and IV
+		ByteBuffer buffer = ByteBuffer.wrap(new Base64().decode(str));
+		byte[] saltBytes = new byte[SALT_LENGTH];
+		buffer.get(saltBytes, 0, saltBytes.length);
+		byte[] ivBytes = new byte[cipher.getBlockSize()];
+		buffer.get(ivBytes, 0, ivBytes.length);
+		byte[] encryptedTextBytes = new byte[buffer.capacity() - saltBytes.length - ivBytes.length];
+		buffer.get(encryptedTextBytes);
+
+		// Derive the key
+		SecretKeyFactory factory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1");
+		PBEKeySpec spec = new PBEKeySpec(password.toCharArray(), saltBytes, 65536, 256);
+
+		SecretKey secretKey = factory.generateSecret(spec);
+		SecretKeySpec secret = new SecretKeySpec(secretKey.getEncoded(), "AES");
+		cipher.init(Cipher.DECRYPT_MODE, secret, new IvParameterSpec(ivBytes));
+
+		byte[] decryptedTextBytes = null;
+		try
 		{
-			cos.write(plainText);
+			decryptedTextBytes = cipher.doFinal(encryptedTextBytes);
+		} catch (IllegalBlockSizeException e)
+		{
+			e.printStackTrace();
+		} catch (BadPaddingException e)
+		{
+			e.printStackTrace();
 		}
 
-		ciphertext = baos.toByteArray();
-		return ciphertext;
+		return new String(decryptedTextBytes, STANDARD_CHARSET);
 	}
 
-	public static String decrypt(byte[] encryptedText, SecretKey secret) throws Exception
+	public static String getSHA512Hash(String passwordToHash, String salt) throws NoSuchAlgorithmException
 	{
-		final byte[] decrypted;
-		final ByteArrayInputStream bais = new ByteArrayInputStream(encryptedText);
-
-		final Cipher aesCBC = Cipher.getInstance("AES/CBC/PKCS5Padding");
-		final IvParameterSpec ivForCBC = readIV(aesCBC.getBlockSize(), bais);
-		aesCBC.init(Cipher.DECRYPT_MODE, secret, ivForCBC);
-
-		final byte[] buf = new byte[1_024];
-		try (final CipherInputStream cis = new CipherInputStream(bais, aesCBC);
-				final ByteArrayOutputStream baos = new ByteArrayOutputStream())
+		String generatedPassword = null;
+		MessageDigest md = MessageDigest.getInstance("SHA-512");
+		md.update(salt.getBytes(STANDARD_CHARSET));
+		byte[] bytes = md.digest(passwordToHash.getBytes(STANDARD_CHARSET));
+		StringBuilder sb = new StringBuilder();
+		for (int i = 0; i < bytes.length; i++)
 		{
-			int read;
-			while ((read = cis.read(buf)) != -1)
-			{
-				baos.write(buf, 0, read);
-			}
-			decrypted = baos.toByteArray();
+			sb.append(Integer.toString((bytes[i] & 0xff) + 0x100, 16).substring(1));
 		}
-		return new String(decrypted, StandardCharsets.UTF_8);
-	}
-
-	public static IvParameterSpec readIV(final int ivSizeBytes, final InputStream is) throws IOException
-	{
-		final byte[] iv = new byte[ivSizeBytes];
-		int offset = 0;
-		while (offset < ivSizeBytes)
-		{
-			final int read = is.read(iv, offset, ivSizeBytes - offset);
-			if (read == -1)
-			{
-				throw new IOException("Too few bytes for IV in input stream");
-			}
-			offset += read;
-		}
-		return new IvParameterSpec(iv);
-	}
-
-	public static SecretKey generateKey(char[] password) throws NoSuchAlgorithmException, InvalidKeySpecException
-	{
-		/* Derive the key, given password and salt. */
-		SecretKeyFactory factory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA256");
-		KeySpec spec = new PBEKeySpec(password, salt, 65536, 256);
-		SecretKey tmp = factory.generateSecret(spec);
-		return new SecretKeySpec(tmp.getEncoded(), "AES");
-	}
-
-	public static void generateSalt()
-	{
-		final Random r = new SecureRandom();
-		salt = new byte[SALT_LEN];
-		r.nextBytes(salt);
-	}
-
-	public static IvParameterSpec createIV(final int ivSizeBytes, final Optional<SecureRandom> rng)
-	{
-		final byte[] iv = new byte[ivSizeBytes];
-		final SecureRandom theRNG = rng.orElse(new SecureRandom());
-		theRNG.nextBytes(iv);
-		return new IvParameterSpec(iv);
-	}
-
-	public static byte[] getSalt()
-	{
-		return salt;
-	}
-
-	public static void setSalt(byte[] salt)
-	{
-		PasswordUtils.salt = salt;
-	}
-
-	public static byte[] getIvspec()
-	{
-		return ivspec_bytes;
-	}
-
-	public static void setIvspec(byte[] ivspec)
-	{
-		PasswordUtils.ivspec_bytes = ivspec;
+		generatedPassword = sb.toString();
+		return generatedPassword;
 	}
 
 }
