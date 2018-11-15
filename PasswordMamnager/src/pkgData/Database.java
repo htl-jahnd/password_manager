@@ -14,7 +14,7 @@ public class Database
 	private static Database instance = null;
 	private static Connection conn = null;
 	private static boolean isConnectionSet = false;
-	private static String connectionString;
+	private static String connectionString=""; //TODO insert proper external ip address
 	private static final ArrayList<WebAccount> accounts = new ArrayList<WebAccount>();
 	private static final ArrayList<ProgramLicense> licenses = new ArrayList<ProgramLicense>();
 	private static final ArrayList<CreditCard> creditCards = new ArrayList<CreditCard>();

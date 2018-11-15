@@ -69,13 +69,13 @@ public class Controller_SignIn
 				{
 					throw new InvalidEmailAddressException(
 							"Please enter a valid email address to sign " + (isLogin == true ? "in" : "up") + ".");
-				} else if (isLogin && !pwdPassword.getText().equals(pwdConfirmPassword.getText()))
+				} else if (!isLogin && !pwdPassword.getText().equals(pwdConfirmPassword.getText()))
 				{
 					throw new InvalidPasswordException("Passwords do not match.");
 				} else if(pwdPassword.getText().length()<6) {
 					throw new InvalidPasswordException("Password is too short. It has to be at least 6 characters");
 				}
-				Database.newInstance();
+				db = Database.newInstance();
 				if(isLogin) {
 					db.login(new User(txtUsername.getText()), pwdPassword.getText().toCharArray());
 				}

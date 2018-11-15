@@ -1,8 +1,19 @@
 package pkgData;
 
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URISyntaxException;
 import java.net.URL;
+import java.util.Arrays;
+import java.util.List;
 
+import javax.imageio.ImageIO;
+
+import javafx.embed.swing.SwingFXUtils;
 import javafx.scene.image.Image;
+import net.sf.image4j.codec.ico.ICODecoder;
 
 /**
  * @author david.jahn
@@ -12,15 +23,15 @@ public class WebAccount
 {
 	private String name;
 	private String websiteName;
-	private URL websiteURL;
+	private String websiteURL;
 	private String username;
 	private String password;
 	private String additionalInformation;
-	private Image thumbnail;
-	private byte[] salt;
+	private BufferedImage thumbnail;
 
-	public WebAccount(String name, String websiteName, URL websiteURL, String username, String password,
-			String additionalInformation, Image thumbnail)
+	public WebAccount(String name, String websiteName, String websiteURL, String username, String password,
+			String additionalInformation, BufferedImage thumbnailParam)
+			throws MalformedURLException, IOException, URISyntaxException
 	{
 		super();
 		this.name = name;
@@ -29,13 +40,37 @@ public class WebAccount
 		this.username = username;
 		this.password = password;
 		this.additionalInformation = additionalInformation;
-		this.thumbnail = thumbnail;
+		if (thumbnailParam == null)
+		{
+			checkThumbnailDownload();
+		} else
+			thumbnail = thumbnailParam;
+
 	}
 
-	public WebAccount(String name, String websiteName, URL websiteURL, String username, String password,
-			String additionalInformation)
+	public WebAccount(String name, String websiteName, String websiteURL, String username, String password,
+			String additionalInformation) throws MalformedURLException, IOException, URISyntaxException
 	{
-		this(name, websiteName, websiteURL,username, password, additionalInformation, new Image("../pkgMain/ressources/images/default_icon_web_account.png",40,40,false,false));
+		this(name, websiteName, websiteURL, username, password, additionalInformation, null);
+	}
+
+	private void checkThumbnailDownload() throws IOException //TODO doesnt work everytime
+	{
+		try
+		{
+			List<BufferedImage> lstImg = ICODecoder.read(new URL(websiteURL + "favicon.ico").openStream());
+			this.thumbnail = lstImg.get(lstImg.size() - 1);
+		} catch (Exception e)
+		{
+			this.thumbnail = ImageIO
+					.read(getClass().getResource("/pkgMain/ressources/images/default_icon_web_account.png"));
+		}
+	}
+
+	@Override
+	public String toString()
+	{
+		return name;
 	}
 
 	public String getName()
@@ -88,34 +123,25 @@ public class WebAccount
 		this.additionalInformation = additionalInformation;
 	}
 
-	public URL getWebsiteURL()
+	public String getWebsiteURL()
 	{
 		return websiteURL;
 	}
 
-	public void setWebsiteURL(URL websiteURL)
+	public void setWebsiteURL(String websiteURL) throws IOException
 	{
 		this.websiteURL = websiteURL;
+		checkThumbnailDownload(); 
 	}
 
 	public Image getThumbnail()
 	{
-		return thumbnail;
+		return SwingFXUtils.toFXImage(thumbnail, null);
 	}
 
-	public void setThumbnail(Image thumbnail)
+	public void setThumbnail(BufferedImage thumbnail)
 	{
 		this.thumbnail = thumbnail;
-	}
-
-	public byte[] getSalt()
-	{
-		return salt;
-	}
-
-	public void setSalt(byte[] salt)
-	{
-		this.salt = salt;
 	}
 
 }
