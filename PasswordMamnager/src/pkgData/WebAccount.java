@@ -17,6 +17,7 @@ public class WebAccount
 	private String password;
 	private String additionalInformation;
 	private Image thumbnail;
+	private byte[] salt;
 
 	public WebAccount(String name, String websiteName, URL websiteURL, String username, String password,
 			String additionalInformation, Image thumbnail)
@@ -105,6 +106,16 @@ public class WebAccount
 	public void setThumbnail(Image thumbnail)
 	{
 		this.thumbnail = thumbnail;
+	}
+
+	public byte[] getSalt()
+	{
+		return salt;
+	}
+
+	public void setSalt(byte[] salt)
+	{
+		this.salt = salt;
 	}
 
 }

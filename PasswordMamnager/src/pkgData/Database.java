@@ -1,13 +1,13 @@
 package pkgData;
 
-import java.nio.charset.StandardCharsets;
-import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.util.ArrayList;
-import java.util.Base64;
 import java.util.Collection;
+import org.apache.commons.codec.binary.Base64;
+
+import pkgMisc.PasswordUtils;
 
 public class Database
 {
@@ -40,17 +40,17 @@ public class Database
 	// ---------------- WEB ACCOUNT OPERATIONS --------------------
 	// ------------------------------------------------------------
 
-	public void addWebAccount(WebAccount accountToAdd, User user)
+	public void addWebAccount(WebAccount accountToAdd)
 	{
 		// TODO @rabitsch
 	}
 
-	public void deleteWebAccount(WebAccount accountToDelete, User user)
+	public void deleteWebAccount(WebAccount accountToDelete)
 	{
 		// TODO @rabitsch
 	}
 
-	public void updateWebAccount(WebAccount accountToUpdate, User user)
+	public void updateWebAccount(WebAccount accountToUpdate)
 	{
 		// TODO @rabitsch
 	}
@@ -59,17 +59,17 @@ public class Database
 	// ------------------ LICENSE OPERATIONS ----------------------
 	// ------------------------------------------------------------
 
-	public void addProgramLicense(ProgramLicense licenseToAdd, User user)
+	public void addProgramLicense(ProgramLicense licenseToAdd)
 	{
 		// TODO @rabitsch
 	}
 
-	public void deleteProgramLicense(ProgramLicense licenseToDelete, User user)
+	public void deleteProgramLicense(ProgramLicense licenseToDelete)
 	{
 		// TODO @rabitsch
 	}
 
-	public void updateProgramLicense(ProgramLicense licenseToUpdate, User user)
+	public void updateProgramLicense(ProgramLicense licenseToUpdate)
 	{
 		// TODO @rabitsch
 	}
@@ -78,17 +78,17 @@ public class Database
 	// ---------------- CREDIT CARD OPERATIONS --------------------
 	// ------------------------------------------------------------
 
-	public void addCreditCard(CreditCard cardToAdd, User user)
+	public void addCreditCard(CreditCard cardToAdd)
 	{
 		// TODO @rabitsch
 	}
 
-	public void delteCreditCard(CreditCard cardToDelete, User user)
+	public void delteCreditCard(CreditCard cardToDelete)
 	{
 		// TODO @rabitsch
 	}
 
-	public void updateCreditCard(CreditCard cardToUpdate, User user)
+	public void updateCreditCard(CreditCard cardToUpdate)
 	{
 		// TODO @rabitsch
 	}
@@ -97,25 +97,26 @@ public class Database
 	// ------------------- USER OPERATIONS ------------------------
 	// ------------------------------------------------------------
 
-	public void checkUserCredentials(User userToCheck, char[] password) throws NoSuchAlgorithmException
+	public void addUser(User userToAdd, char[] password) throws NoSuchAlgorithmException
 	{
-		String hashedPwd = hash(new String(password));
-		//TODO check if user & password exist
+//		String hashedPwd = hash(new String(password));
+		// TODO @rabitsch
 	}
 
-	private String hash(String text) throws NoSuchAlgorithmException
+	public void checkUserCredentials(User userToCheck, char[] password) throws NoSuchAlgorithmException
 	{
-		MessageDigest digest = MessageDigest.getInstance("SHA-256");
-		byte[] hash = digest.digest(text.getBytes(StandardCharsets.UTF_8));
-		String hashedPassword = Base64.getEncoder().encodeToString(hash);
-		return hashedPassword;
+
+		// TODO select users salt
+
+		// String hashedPwd = hash(new String(password));
+		// TODO check if user & password exist
 	}
 
 	// ------------------------------------------------------------
 	// ----------------------- MISC THINGS ------------------------
 	// ------------------------------------------------------------
 
-	public static Database newInstance() throws Exception 
+	public static Database newInstance() throws Exception
 	{
 		if (instance == null)
 		{
@@ -182,6 +183,32 @@ public class Database
 	public static boolean isConnectionSet()
 	{
 		return isConnectionSet;
+	}
+
+	public void login(User usr, char[] pwd) throws NoSuchAlgorithmException
+	{
+		//TODO check if user exists -> if no throw new exception
+		String salt = null; //TODO select salt from db
+		String hashed = PasswordUtils.getSHA512Hash(new String(pwd), salt);
+		//TODO check if user and pwd exist
+		//then
+		usr.setPwd(hashed);
+		usr.setSalt(salt);
+		currentUser=usr;
+	}
+
+	public void createNewUser(User user, char[] pwd) throws NoSuchAlgorithmException
+	{
+		//TODO check if user exists -> if yes throw new exception
+		String salt = new Base64().encodeToString(PasswordUtils.generateSalt(PasswordUtils.SALT_LENGTH));
+		String hashedPassword = PasswordUtils.getSHA512Hash(new String(pwd), salt);
+		
+		//TODO insert in db
+		//then
+		currentUser = new User(user.getUsername());
+		currentUser.setPwd(hashedPassword);
+		currentUser.setSalt(salt);
+		
 	}
 
 }
