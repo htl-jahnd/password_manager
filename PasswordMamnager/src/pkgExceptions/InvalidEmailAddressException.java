@@ -1,4 +1,4 @@
-package pkgController;
+package pkgExceptions;
 
 public class InvalidEmailAddressException extends Exception
 {

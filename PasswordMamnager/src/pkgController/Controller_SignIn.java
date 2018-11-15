@@ -13,6 +13,7 @@ import javafx.scene.control.Label;
 import javafx.stage.Stage;
 import pkgData.Database;
 import pkgData.User;
+import pkgExceptions.InvalidEmailAddressException;
 import pkgExceptions.InvalidPasswordException;
 import pkgMisc.AddressFormatValidator;
 import pkgMisc.ExceptionHandler;

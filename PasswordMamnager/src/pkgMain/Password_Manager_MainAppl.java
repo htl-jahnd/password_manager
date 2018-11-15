@@ -21,7 +21,7 @@ public class Password_Manager_MainAppl extends Application
 
 	public static void main(String[] args) throws Exception
 	{
-		 String slt = new Base64().encodeToString(PasswordUtils.generateSalt(16));
+//		 String slt = new Base64().encodeToString(PasswordUtils.generateSalt(16));
 		// String pwd = PasswordUtils.getSHA512Hash("1234Secure", slt);
 		// String s = PasswordUtils.encrypt("TestString", pwd);
 		// System.out.println(s);
