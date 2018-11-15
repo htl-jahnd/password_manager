@@ -18,10 +18,12 @@ import javafx.collections.ObservableList;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.geometry.Pos;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
+import javafx.scene.control.ListCell;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
@@ -142,6 +144,32 @@ public class Controller_PasswordManager
 
 		listWebAccounts = FXCollections.observableArrayList();
 		listViewWebAccount.setItems(listWebAccounts);
+
+		listViewWebAccount.setCellFactory(listView -> new ListCell<WebAccount>() {
+			@Override
+			protected void updateItem(WebAccount account, boolean empty)
+			{
+				super.updateItem(account, empty);
+
+				if (empty)
+				{
+					setGraphic(null);
+				} else
+				{
+					// Create a HBox to hold our displayed value
+					HBox hBox = new HBox(2);
+					hBox.setAlignment(Pos.CENTER);
+					ImageView iv = new ImageView(account.getThumbnail());
+					iv.setFitHeight(25);
+					iv.setFitWidth(25);
+					// Add the values from our piece to the HBox
+					hBox.getChildren().addAll(iv, new Label("   "+account.getName()));
+					// Set the HBox as the display
+					setGraphic(hBox);
+				}
+			}
+		});
+
 		listWebAccounts.add(new WebAccount("test1", "google.com", "http://www.google.com/", "googleUser",
 				"googlePassword", "info for google"));
 		listWebAccounts.add(new WebAccount("test2", "facebook.com", "http://www.facebook.com/", "fbUser", "fbPassword",
@@ -169,13 +197,13 @@ public class Controller_PasswordManager
 				paneWebAccountSaveCancelEdit.setVisible(true);
 				doSetTextFieldsWebAccountEditable(true);
 				// TODO add into db
-			} else if (event.getSource().equals(btnWebAccountCancelEdit)) //on cancel edit
+			} else if (event.getSource().equals(btnWebAccountCancelEdit)) // on cancel edit
 			{
 				doFillTextFieldsWebAccount();
 				doSetTextFieldsWebAccountEditable(false);
 				paneWebAccountSaveCancelEdit.setVisible(false);
 				paneWebAccountEditDelete.setVisible(true);
-			} else if (event.getSource().equals(btnWebAccountDelete))  //on delete
+			} else if (event.getSource().equals(btnWebAccountDelete)) // on delete
 
 			{
 				if (doShowDeleteDialogWebAccount())
@@ -186,7 +214,7 @@ public class Controller_PasswordManager
 			{
 				doSetTextFieldsWebAccountEditable(true);
 				paneWebAccountSaveCancelEdit.setVisible(true);
-			} else if (event.getSource().equals(btnWebAccountSaveEdit)) //Save edit
+			} else if (event.getSource().equals(btnWebAccountSaveEdit)) // Save edit
 			{
 				currentAccount.setAdditionalInformation(txtWebAccountAdditionalInformation.getText());
 				currentAccount.setName(txtWebAccountName.getText());
@@ -309,6 +337,7 @@ public class Controller_PasswordManager
 	{
 		if (currentAccount != null)
 		{
+			lblWebAccountSiteName.setText(currentAccount.getName());
 			txtWebAccountName.setText(currentAccount.getName());
 			pwdWebAccountPassword.setText(currentAccount.getPassword());
 			txtWebAccountURL.setText(currentAccount.getWebsiteURL().toString());
