@@ -1,13 +1,18 @@
 package pkgController;
 
 import java.awt.Desktop;
+import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.time.YearMonth;
+
+import javax.imageio.ImageIO;
 
 import com.jfoenix.controls.JFXButton;
+import com.jfoenix.controls.JFXComboBox;
 import com.jfoenix.controls.JFXListView;
 import com.jfoenix.controls.JFXPasswordField;
 import com.jfoenix.controls.JFXTextArea;
@@ -24,11 +29,15 @@ import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
+import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
+import pkgData.CreditCard;
 import pkgData.Database;
+import pkgData.ECreditCardsProviders;
 import pkgData.WebAccount;
 import pkgMisc.ExceptionHandler;
 
@@ -42,13 +51,46 @@ public class Controller_PasswordManager
 	// ============================================================
 
 	@FXML
+	private JFXButton btnWebAccount;
+
+	@FXML
+	private JFXButton btnCreditCard;
+
+	@FXML
+	private JFXButton btnIdentities;
+
+	@FXML
+	private JFXButton btnSettings;
+
+	@FXML
+	private VBox paneWebAccountList;
+
+	@FXML
 	private JFXButton btnWebAccountAdd;
+
+	@FXML
+	private JFXListView<WebAccount> listViewWebAccount;
+
+	@FXML
+	private VBox paneCreditCardList;
+
+	@FXML
+	private JFXButton btnCreditCardAdd;
+
+	@FXML
+	private JFXListView<CreditCard> listViewCreditCard;
+
+	@FXML
+	private VBox paneWebAccountDetails;
 
 	@FXML
 	private Label lblWebAccountSiteName;
 
 	@FXML
 	private ImageView imgWebAccountThumbnail;
+
+	@FXML
+	private HBox paneWebAccountEditDelete;
 
 	@FXML
 	private JFXButton btnWebAccountEdit;
@@ -93,28 +135,112 @@ public class Controller_PasswordManager
 	private JFXButton btnWebAccountShowHidePassword;
 
 	@FXML
+	private ImageView imgWebAccountShowHidePassword;
+
+	@FXML
+	private JFXButton btnWebAccountOpenInBrowser;
+
+	@FXML
+	private HBox paneWebAccountSaveCancelEdit;
+
+	@FXML
 	private JFXButton btnWebAccountCancelEdit;
 
 	@FXML
 	private JFXButton btnWebAccountSaveEdit;
 
 	@FXML
-	private HBox paneWebAccountSaveCancelEdit;
+	private VBox paneCreditCardDetails;
 
 	@FXML
-	private ImageView imgWebAccountShowHidePassword;
+	private Label lblCreditCardCardName;
 
 	@FXML
-	private JFXListView<WebAccount> listViewWebAccount;
+	private ImageView imgCreditCardThumbnail;
 
 	@FXML
-	private HBox paneWebAccountEditDelete;
+	private HBox paneCreditCardEditDelete;
 
 	@FXML
-	private JFXButton btnWebAccountOpenInBrowser;
+	private JFXButton btnCreditCardEdit;
 
 	@FXML
-	private VBox paneWebAccountDetails;
+	private JFXButton btnCreditCardDelete;
+
+	@FXML
+	private JFXPasswordField pwdCreditCardNumber;
+
+	@FXML
+	private JFXTextField txtCreditCardNumber;
+
+	@FXML
+	private JFXTextField txtCreditCardBankName;
+
+	@FXML
+	private JFXTextField txtCreditCardOwner;
+
+	@FXML
+	private JFXTextArea txtCreditCardAdditionalInformation;
+
+	@FXML
+	private JFXTextField txtCreditCardName;
+
+	@FXML
+	private JFXButton btnCreditCardCopyName;
+
+	@FXML
+	private JFXButton btnCreditCardCopyOwner;
+
+	@FXML
+	private JFXButton btnCreditCardCopyBankName;
+
+	@FXML
+	private JFXButton btnCreditCardCopyNumber;
+
+	@FXML
+	private JFXButton btnCreditCardCopyAdditionalInformation;
+
+	@FXML
+	private JFXButton btnCreditCardShowNuber;
+
+	@FXML
+	private ImageView imgCreditCardShowHideNumber;
+
+	@FXML
+	private JFXComboBox<ECreditCardsProviders> cmbxCreditCardProvider;
+
+	@FXML
+	private JFXButton btnCreditCardCopyProvider;
+
+	@FXML
+	private JFXTextField txtCreditCardCVV;
+
+	@FXML
+	private JFXButton btnCreditCardShowCVV;
+
+	@FXML
+	private ImageView imgCreditCardShowHideCVV;
+
+	@FXML
+	private JFXTextField txtCreditCardExpireDate;
+
+	@FXML
+	private JFXButton btnCreditCardCopyExpireDate;
+
+	@FXML
+	private JFXButton btnCreditCardCopyCVV;
+
+	@FXML
+	private HBox paneCreditCardSaveCancelEdit;
+
+	@FXML
+	private JFXButton btnCreditCardCancelEdit;
+
+	@FXML
+	private JFXButton btnCreditCardSaveEdit;
+
+	@FXML
+	private JFXPasswordField pwdCreditCardCVV;
 
 	// ============================================================
 	// ============================================================
@@ -123,8 +249,11 @@ public class Controller_PasswordManager
 	// ============================================================
 
 	private ObservableList<WebAccount> listWebAccounts;
+	private ObservableList<ECreditCardsProviders> listCreditCardProviders;
+	private ObservableList<CreditCard> listCreditCards;
 	private Database db;
 	private WebAccount currentAccount = null;
+	private CreditCard currentCard;
 	private boolean webAccountPasswordVisible;
 
 	// ============================================================
@@ -133,18 +262,78 @@ public class Controller_PasswordManager
 	// ============================================================
 	// ============================================================
 
-	// -------------------------------------------------------------
-	// ----------------- web account things ------------------------
-	// -------------------------------------------------------------
-
 	@FXML
 	void initialize() throws Exception
 	{
-		// db = Database.newInstance();
+		db = Database.newInstance();
+
+		listCreditCardProviders = FXCollections.observableArrayList();
+		listCreditCardProviders.add(ECreditCardsProviders.Visa);
+		listCreditCardProviders.add(ECreditCardsProviders.MasterCard);
+		listCreditCardProviders.add(ECreditCardsProviders.AmericanExpress);
+		listCreditCardProviders.add(ECreditCardsProviders.DinersClub);
+		cmbxCreditCardProvider.setItems(listCreditCardProviders);
+		cmbxCreditCardProvider.setCellFactory(cmbx -> new ListCell<ECreditCardsProviders>() {
+			@Override
+			protected void updateItem(ECreditCardsProviders item, boolean empty)
+			{
+				super.updateItem(item, empty);
+
+				if (empty)
+				{
+					setGraphic(null);
+				} else
+				{
+					// Create a HBox to hold our displayed value
+					HBox hBox = new HBox(2);
+					hBox.setAlignment(Pos.CENTER_LEFT);
+					ImageView iv = new ImageView();
+					try
+					{
+						iv.setImage(SwingFXUtils.toFXImage(ECreditCardsProviders.getProviderPicture(item), null));
+					} catch (IOException e)
+					{
+						ExceptionHandler.hanldeUnexpectedException(e);
+					}
+					iv.setFitHeight(25);
+					iv.setFitWidth(25);
+					// Add the values from our piece to the HBox
+					hBox.getChildren().addAll(iv, new Label("   " + ECreditCardsProviders.getProviderString(item)));
+					// Set the HBox as the display
+					setGraphic(hBox);
+				}
+			}
+		});
+
+		listCreditCards = FXCollections.observableArrayList();
+		listViewCreditCard.setItems(listCreditCards);
+		listViewCreditCard.setCellFactory(listView -> new ListCell<CreditCard>() {
+			@Override
+			protected void updateItem(CreditCard card, boolean empty)
+			{
+				super.updateItem(card, empty);
+
+				if (empty)
+				{
+					setGraphic(null);
+				} else
+				{
+					// Create a HBox to hold our displayed value
+					HBox hBox = new HBox(2);
+					hBox.setAlignment(Pos.CENTER_LEFT);
+					ImageView iv = new ImageView(card.getThumbnail());
+					iv.setFitHeight(25);
+					iv.setFitWidth(25);
+					// Add the values from our piece to the HBox
+					hBox.getChildren().addAll(iv, new Label("   " + card.getCardName()));
+					// Set the HBox as the display
+					setGraphic(hBox);
+				}
+			}
+		});
 
 		listWebAccounts = FXCollections.observableArrayList();
 		listViewWebAccount.setItems(listWebAccounts);
-
 		listViewWebAccount.setCellFactory(listView -> new ListCell<WebAccount>() {
 			@Override
 			protected void updateItem(WebAccount account, boolean empty)
@@ -158,18 +347,19 @@ public class Controller_PasswordManager
 				{
 					// Create a HBox to hold our displayed value
 					HBox hBox = new HBox(2);
-					hBox.setAlignment(Pos.CENTER);
+					hBox.setAlignment(Pos.CENTER_LEFT);
 					ImageView iv = new ImageView(account.getThumbnail());
 					iv.setFitHeight(25);
 					iv.setFitWidth(25);
 					// Add the values from our piece to the HBox
-					hBox.getChildren().addAll(iv, new Label("   "+account.getName()));
+					hBox.getChildren().addAll(iv, new Label("   " + account.getName()));
 					// Set the HBox as the display
 					setGraphic(hBox);
 				}
 			}
 		});
 
+		// TEST DATA
 		listWebAccounts.add(new WebAccount("test1", "google.com", "http://www.google.com/", "googleUser",
 				"googlePassword", "info for google"));
 		listWebAccounts.add(new WebAccount("test2", "facebook.com", "http://www.facebook.com/", "fbUser", "fbPassword",
@@ -178,7 +368,41 @@ public class Controller_PasswordManager
 				"twitterPassword", "info for twitter"));
 		listWebAccounts.add(new WebAccount("test4", "tumblr.com", "http://www.tumblr.com/", "tumblrUser",
 				"tumblrPassword", "info for tumblr"));
+
+		listCreditCards.add(new CreditCard("Test card 1", "1234 5678", "Owner No1", YearMonth.of(2020, 11),
+				ECreditCardsProviders.Visa, "Infooo", "Erste Bank", 1234));
 	}
+
+	@FXML
+	void onSelectButtonMenu(ActionEvent event)
+	{
+		if (event.getSource().equals(btnWebAccount))
+		{
+			paneCreditCardDetails.setVisible(false);
+			paneCreditCardList.setVisible(false);
+			paneWebAccountDetails.setVisible(true);
+			paneWebAccountList.setVisible(true);
+			// TODO do this for later things too
+		} else if (event.getSource().equals(btnCreditCard))
+		{
+			paneCreditCardDetails.setVisible(true);
+			paneCreditCardList.setVisible(true);
+			paneWebAccountDetails.setVisible(false);
+			paneWebAccountList.setVisible(false);
+			// TODO do this for later things too
+		} else if (event.getSource().equals(btnIdentities))
+		{
+			// TODO do this for later things too
+		} else if (event.getSource().equals(btnSettings))
+		{
+			// TODO do this for later things too
+		}
+
+	}
+
+	// -------------------------------------------------------------
+	// ----------------- web account things ------------------------
+	// -------------------------------------------------------------
 
 	@FXML
 	void onSelectButtonWebAccount(ActionEvent event) // Action handler for all kinds in web accounts view
@@ -196,7 +420,7 @@ public class Controller_PasswordManager
 				paneWebAccountEditDelete.setVisible(false);
 				paneWebAccountSaveCancelEdit.setVisible(true);
 				doSetTextFieldsWebAccountEditable(true);
-				// TODO add into db
+				db.addWebAccount(currentAccount);
 			} else if (event.getSource().equals(btnWebAccountCancelEdit)) // on cancel edit
 			{
 				doFillTextFieldsWebAccount();
@@ -214,7 +438,7 @@ public class Controller_PasswordManager
 			{
 				doSetTextFieldsWebAccountEditable(true);
 				paneWebAccountSaveCancelEdit.setVisible(true);
-			} else if (event.getSource().equals(btnWebAccountSaveEdit)) // Save edit
+			} else if (event.getSource().equals(btnWebAccountSaveEdit)) // on Save edit
 			{
 				currentAccount.setAdditionalInformation(txtWebAccountAdditionalInformation.getText());
 				currentAccount.setName(txtWebAccountName.getText());
@@ -222,7 +446,8 @@ public class Controller_PasswordManager
 				currentAccount.setUsername(txtWebAccountUsername.getText());
 				currentAccount.setWebsiteURL(txtWebAccountURL.getText());
 
-				// TODO save into db
+				db.updateWebAccount(currentAccount);
+
 				doFillTextFieldsWebAccount();
 				doSetTextFieldsWebAccountEditable(false);
 				paneWebAccountEditDelete.setVisible(true);
@@ -238,6 +463,7 @@ public class Controller_PasswordManager
 					txtWebAccountPassword.setVisible(false);
 					pwdWebAccountPassword.setText(pwd);
 					webAccountPasswordVisible = false;
+					imgWebAccountShowHidePassword.setImage(SwingFXUtils.toFXImage(ImageIO.read(getClass().getResourceAsStream("/pkgMain/ressources/images/eye-solid.png")), null));
 				} else
 				{
 					String pwd = pwdWebAccountPassword.getText();
@@ -245,6 +471,7 @@ public class Controller_PasswordManager
 					txtWebAccountPassword.setVisible(true);
 					txtWebAccountPassword.setText(pwd);
 					webAccountPasswordVisible = true;
+					imgWebAccountShowHidePassword.setImage(SwingFXUtils.toFXImage(ImageIO.read(getClass().getResourceAsStream("/pkgMain/ressources/images/eye-slash-solid.png")), null));  
 				}
 			} else if (event.getSource().equals(btnWebAccountOpenInBrowser))
 			{
@@ -276,6 +503,93 @@ public class Controller_PasswordManager
 		}
 	}
 
+	@FXML
+	void onSelectListViewWebAccount(MouseEvent event)
+	{
+		if (event.getSource().equals(listViewWebAccount))
+		{
+			if (listViewWebAccount.getSelectionModel().getSelectedItem() != null)
+			{
+				paneWebAccountDetails.setVisible(true);
+				currentAccount = listViewWebAccount.getSelectionModel().getSelectedItem();
+				doFillTextFieldsWebAccount();
+
+			}
+		}
+	}
+	// -------------------------------------------------------------
+	// ----------------- Credit Card things ------------------------
+	// -------------------------------------------------------------
+
+	@FXML
+	void onSelectButtonCreditCard(ActionEvent event)
+	{
+		if (event.getSource().equals(btnCreditCardAdd)) // on add card
+		{
+			// TODO
+		} else if (event.getSource().equals(btnCreditCardCancelEdit)) // on cancel editing
+		{
+			// TODO
+		} else if (event.getSource().equals(btnCreditCardDelete)) // on delete card
+		{
+			// TODO
+		} else if (event.getSource().equals(btnCreditCardEdit)) // on edit card
+		{
+			// TODO
+		} else if (event.getSource().equals(btnCreditCardSaveEdit)) // on save after editing
+		{
+			// TODO
+		} else if (event.getSource().equals(btnCreditCardShowCVV)) // on show/hide cvv
+		{
+			// TODO
+		} else if (event.getSource().equals(btnCreditCardShowNuber)) // onshow/hide number
+		{
+			// TODO
+		}
+
+		//COPY BUTTONS DOWN HERE
+		else if (event.getSource().equals(btnCreditCardCopyAdditionalInformation))
+		{
+			// TODO
+		} else if (event.getSource().equals(btnCreditCardCopyBankName))
+		{
+			// TODO
+		} else if (event.getSource().equals(btnCreditCardCopyCVV))
+		{
+			// TODO
+		} else if (event.getSource().equals(btnCreditCardCopyExpireDate))
+		{
+			// TODO
+		} else if (event.getSource().equals(btnCreditCardCopyName))
+		{
+			// TODO
+		} else if (event.getSource().equals(btnCreditCardCopyNumber))
+		{
+			// TODO
+		} else if (event.getSource().equals(btnCreditCardCopyOwner))
+		{
+			// TODO
+		} else if (event.getSource().equals(btnCreditCardCopyProvider))
+		{
+			// TODO
+		} 
+		
+	}
+
+	@FXML
+	void onSelectListViewCreditCard(MouseEvent event)
+	{
+		if (event.getSource().equals(listViewCreditCard))
+		{
+			if (listViewCreditCard.getSelectionModel().getSelectedItem() != null)
+			{
+				paneCreditCardDetails.setVisible(true);
+				currentCard = listViewCreditCard.getSelectionModel().getSelectedItem();
+				doFillTextFieldsCreditCard();
+			}
+		}
+	}
+
 	// ============================================================
 	// ============================================================
 	// ===================== NO FXML METHODS ======================
@@ -290,23 +604,13 @@ public class Controller_PasswordManager
 	{
 		// db.deleteWebAccount(currentAccount); TODO
 		int pos = listWebAccounts.indexOf(currentAccount);
+		db.deleteWebAccount(currentAccount);
 		listWebAccounts.remove(currentAccount);
-		currentAccount = listWebAccounts.get(pos - 1);
-	}
-
-	@FXML
-	void onSelectListView(MouseEvent event)
-	{
-		if (event.getSource().equals(listViewWebAccount))
-		{
-			if (listViewWebAccount.getSelectionModel().getSelectedItem() != null)
-			{
-				paneWebAccountDetails.setVisible(true);
-				currentAccount = listViewWebAccount.getSelectionModel().getSelectedItem();
-				doFillTextFieldsWebAccount();
-				imgWebAccountThumbnail.setImage(currentAccount.getThumbnail());
-			}
-		}
+		if (pos > 0)
+			currentAccount = listWebAccounts.get(pos - 1);
+		else if (pos == 0)
+			currentAccount = listWebAccounts.get(pos);
+		doFillTextFieldsWebAccount();
 	}
 
 	private void doSetTextFieldsWebAccountEditable(boolean state)
@@ -337,6 +641,7 @@ public class Controller_PasswordManager
 	{
 		if (currentAccount != null)
 		{
+			imgWebAccountThumbnail.setImage(currentAccount.getThumbnail());
 			lblWebAccountSiteName.setText(currentAccount.getName());
 			txtWebAccountName.setText(currentAccount.getName());
 			pwdWebAccountPassword.setText(currentAccount.getPassword());
@@ -345,4 +650,66 @@ public class Controller_PasswordManager
 			txtWebAccountAdditionalInformation.setText(currentAccount.getAdditionalInformation());
 		}
 	}
+
+	// -------------------------------------------------------------
+	// ----------------- Credit Card things ------------------------
+	// -------------------------------------------------------------
+
+	private void doFillTextFieldsCreditCard()
+	{
+		imgCreditCardThumbnail.setImage(currentCard.getThumbnail());
+		lblCreditCardCardName.setText(currentCard.getCardName());
+		txtCreditCardName.setText(currentCard.getCardName());
+		txtCreditCardOwner.setText(currentCard.getOwnerName());
+		txtCreditCardBankName.setText(currentCard.getBankName());
+		cmbxCreditCardProvider.getSelectionModel().select(currentCard.getProvider());
+		txtCreditCardExpireDate.setText(currentCard.getExpireDateAsString());
+		pwdCreditCardNumber.setText(currentCard.getCardNumber());
+		pwdCreditCardCVV.setText(String.valueOf(currentCard.getSecurityCode()));
+		txtCreditCardAdditionalInformation.setText(currentCard.getAdditionalInformation());
+	}
+
+	private void doSetTextFieldsCreditCardEditable(boolean state)
+	{
+		txtCreditCardName.setEditable(state);
+		txtCreditCardOwner.setEditable(state);
+		txtCreditCardBankName.setEditable(state);
+		cmbxCreditCardProvider.setEditable(state);
+		txtCreditCardExpireDate.setEditable(state);
+		txtCreditCardAdditionalInformation.setEditable(state);
+		if (txtCreditCardNumber.isVisible())
+		{
+			txtCreditCardNumber.setEditable(state);
+		} else
+			pwdCreditCardNumber.setEditable(state);
+		if (txtCreditCardCVV.isVisible())
+		{
+			txtCreditCardCVV.setEditable(state);
+		} else
+			pwdCreditCardCVV.setEditable(state);
+
+	}
+
+	private boolean doShowDeleteDialogCreditCard()
+	{
+		Alert alert = new Alert(AlertType.CONFIRMATION, "Delete " + currentCard.getCardName() + " ?", ButtonType.YES,
+				ButtonType.NO, ButtonType.CANCEL);
+		alert.showAndWait();
+
+		return alert.getResult() == ButtonType.YES;
+
+	}
+
+	private void doDeleteCreditCard()
+	{
+		int pos = listCreditCards.indexOf(currentCard);
+		db.delteCreditCard(currentCard);
+		listCreditCards.remove(currentCard);
+		if (pos > 0)
+			currentCard = listCreditCards.get(pos - 1);
+		else if (pos == 0)
+			currentCard = listCreditCards.get(pos);
+		doFillTextFieldsCreditCard();
+	}
+
 }

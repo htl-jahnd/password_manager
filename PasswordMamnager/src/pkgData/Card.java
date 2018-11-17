@@ -8,17 +8,17 @@ abstract public class Card
     private String cardName;
     private String ownerName;
     private String bankName;
-    private YearMonth validationDate;
+    private YearMonth expireDate;
     private String additionalInformation;
 
-    public Card(String cardName, String ownerName, String bankName, YearMonth validationDate,
+    public Card(String cardName, String ownerName, String bankName, YearMonth expireDate,
 	    String additionalInformation)
     {
 	super();
 	this.cardName = cardName;
 	this.ownerName = ownerName;
 	this.bankName = bankName;
-	this.validationDate = validationDate;
+	this.expireDate = expireDate;
 	this.additionalInformation = additionalInformation;
     }
 
@@ -52,24 +52,27 @@ abstract public class Card
 	this.bankName = bankName;
     }
 
-    public YearMonth getValidationDate()
-    {
-	return validationDate;
-    }
 
-    public void setValidationDate(YearMonth validationDate)
-    {
-	this.validationDate = validationDate;
-    }
+	public YearMonth getExpireDate()
+	{
+		return expireDate;
+	}
 
-    public String getAdditionalInformation()
-    {
-	return additionalInformation;
-    }
+	public void setExpireDate(YearMonth expireDate)
+	{
+		this.expireDate = expireDate;
+	}
 
-    public void setAdditionalInformation(String additionalInformation)
-    {
-	this.additionalInformation = additionalInformation;
-    }
+	public String getAdditionalInformation()
+	{
+		return additionalInformation;
+	}
+
+	public void setAdditionalInformation(String additionalInformation)
+	{
+		this.additionalInformation = additionalInformation;
+	}
+
+   
 
 }

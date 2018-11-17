@@ -11,10 +11,12 @@ import pkgMisc.PasswordUtils;
 
 public class Database
 {
+	// "jdbc:oracle:thin:@192.168.128.152:1521:ora11g";
+	// "dbc:oracle:thin:@212.152.179.117:1521:ora11g";
 	private static Database instance = null;
 	private static Connection conn = null;
 	private static boolean isConnectionSet = false;
-	private static String connectionString=""; //TODO insert proper external ip address
+	private static String connectionString = "212.152.179.117"; // TODO insert proper external ip address
 	private static final ArrayList<WebAccount> accounts = new ArrayList<WebAccount>();
 	private static final ArrayList<ProgramLicense> licenses = new ArrayList<ProgramLicense>();
 	private static final ArrayList<CreditCard> creditCards = new ArrayList<CreditCard>();
@@ -99,7 +101,7 @@ public class Database
 
 	public void addUser(User userToAdd, char[] password) throws NoSuchAlgorithmException
 	{
-//		String hashedPwd = hash(new String(password));
+		// String hashedPwd = hash(new String(password));
 		// TODO @rabitsch
 	}
 
@@ -187,28 +189,28 @@ public class Database
 
 	public void login(User usr, char[] pwd) throws NoSuchAlgorithmException
 	{
-		//TODO check if user exists -> if no throw new exception
-		String salt = null; //TODO select salt from db
+		// TODO check if user exists -> if no throw new exception
+		String salt = null; // TODO select salt from db
 		String hashed = PasswordUtils.getSHA512Hash(new String(pwd), salt);
-		//TODO check if user and pwd exist
-		//then
+		// TODO check if user and pwd exist
+		// then
 		usr.setPwd(hashed);
 		usr.setSalt(salt);
-		currentUser=usr;
+		currentUser = usr;
 	}
 
 	public void createNewUser(User user, char[] pwd) throws NoSuchAlgorithmException
 	{
-		//TODO check if user exists -> if yes throw new exception
+		// TODO check if user exists -> if yes throw new exception
 		String salt = new Base64().encodeToString(PasswordUtils.generateSalt(PasswordUtils.SALT_LENGTH));
 		String hashedPassword = PasswordUtils.getSHA512Hash(new String(pwd), salt);
-		
-		//TODO insert in db
-		//then
+
+		// TODO insert in db
+		// then
 		currentUser = new User(user.getUsername());
 		currentUser.setPwd(hashedPassword);
 		currentUser.setSalt(salt);
-		
+
 	}
 
 }
