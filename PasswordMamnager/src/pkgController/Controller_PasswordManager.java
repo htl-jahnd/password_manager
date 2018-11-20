@@ -8,6 +8,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.time.YearMonth;
+import java.util.Date;
 
 import javax.imageio.ImageIO;
 
@@ -272,6 +273,8 @@ public class Controller_PasswordManager
 		listCreditCardProviders.add(ECreditCardsProviders.MasterCard);
 		listCreditCardProviders.add(ECreditCardsProviders.AmericanExpress);
 		listCreditCardProviders.add(ECreditCardsProviders.DinersClub);
+		listCreditCardProviders.add(ECreditCardsProviders.Discover);
+		listCreditCardProviders.add(ECreditCardsProviders.Other);
 		cmbxCreditCardProvider.setItems(listCreditCardProviders);
 		cmbxCreditCardProvider.setCellFactory(cmbx -> new ListCell<ECreditCardsProviders>() {
 			@Override
@@ -428,7 +431,6 @@ public class Controller_PasswordManager
 				paneWebAccountSaveCancelEdit.setVisible(false);
 				paneWebAccountEditDelete.setVisible(true);
 			} else if (event.getSource().equals(btnWebAccountDelete)) // on delete
-
 			{
 				if (doShowDeleteDialogWebAccount())
 				{
@@ -463,7 +465,9 @@ public class Controller_PasswordManager
 					txtWebAccountPassword.setVisible(false);
 					pwdWebAccountPassword.setText(pwd);
 					webAccountPasswordVisible = false;
-					imgWebAccountShowHidePassword.setImage(SwingFXUtils.toFXImage(ImageIO.read(getClass().getResourceAsStream("/pkgMain/ressources/images/eye-solid.png")), null));
+					imgWebAccountShowHidePassword.setImage(SwingFXUtils.toFXImage(
+							ImageIO.read(getClass().getResourceAsStream("/pkgMain/ressources/images/eye-solid.png")),
+							null));
 				} else
 				{
 					String pwd = pwdWebAccountPassword.getText();
@@ -471,7 +475,10 @@ public class Controller_PasswordManager
 					txtWebAccountPassword.setVisible(true);
 					txtWebAccountPassword.setText(pwd);
 					webAccountPasswordVisible = true;
-					imgWebAccountShowHidePassword.setImage(SwingFXUtils.toFXImage(ImageIO.read(getClass().getResourceAsStream("/pkgMain/ressources/images/eye-slash-solid.png")), null));  
+					imgWebAccountShowHidePassword.setImage(SwingFXUtils.toFXImage(
+							ImageIO.read(
+									getClass().getResourceAsStream("/pkgMain/ressources/images/eye-slash-solid.png")),
+							null));
 				}
 			} else if (event.getSource().equals(btnWebAccountOpenInBrowser))
 			{
@@ -524,56 +531,80 @@ public class Controller_PasswordManager
 	@FXML
 	void onSelectButtonCreditCard(ActionEvent event)
 	{
-		if (event.getSource().equals(btnCreditCardAdd)) // on add card
+		try
 		{
-			// TODO
-		} else if (event.getSource().equals(btnCreditCardCancelEdit)) // on cancel editing
+			if (event.getSource().equals(btnCreditCardAdd)) // on add card
+			{
+				Date now = new Date();
+				CreditCard tmp = new CreditCard("Name", "0000 1111 2222 3333 4444", "Card Owner",
+						YearMonth.of(now.getYear(), now.getMonth()), ECreditCardsProviders.Other,
+						"Additional Information", "Example Bank", Integer.valueOf(123));
+				listCreditCards.add(tmp);
+				currentCard = tmp;
+				listViewCreditCard.getSelectionModel().select(listWebAccounts.indexOf(currentAccount));
+				doFillTextFieldsCreditCard();
+				paneCreditCardEditDelete.setVisible(false);
+				paneCreditCardSaveCancelEdit.setVisible(true);
+				doSetTextFieldsCreditCardEditable(true);
+				db.addCreditCard(currentCard);
+			} else if (event.getSource().equals(btnCreditCardCancelEdit)) // on cancel editing
+			{
+				doFillTextFieldsCreditCard();
+				doSetTextFieldsCreditCardEditable(false);
+				paneCreditCardSaveCancelEdit.setVisible(false);
+				paneCreditCardEditDelete.setVisible(true);
+			} else if (event.getSource().equals(btnCreditCardDelete)) // on delete card
+			{
+				if (doShowDeleteDialogCreditCard())
+				{
+					doDeleteCreditCard();
+				}
+			} else if (event.getSource().equals(btnCreditCardEdit)) // on edit card
+			{
+				doSetTextFieldsCreditCardEditable(true);
+				paneCreditCardSaveCancelEdit.setVisible(true);
+			} else if (event.getSource().equals(btnCreditCardSaveEdit)) // on save after editing
+			{
+				// TODO
+			} else if (event.getSource().equals(btnCreditCardShowCVV)) // on show/hide cvv
+			{
+				// TODO
+			} else if (event.getSource().equals(btnCreditCardShowNuber)) // onshow/hide number
+			{
+				// TODO
+			}
+
+			// COPY BUTTONS DOWN HERE
+			else if (event.getSource().equals(btnCreditCardCopyAdditionalInformation))
+			{
+				// TODO
+			} else if (event.getSource().equals(btnCreditCardCopyBankName))
+			{
+				// TODO
+			} else if (event.getSource().equals(btnCreditCardCopyCVV))
+			{
+				// TODO
+			} else if (event.getSource().equals(btnCreditCardCopyExpireDate))
+			{
+				// TODO
+			} else if (event.getSource().equals(btnCreditCardCopyName))
+			{
+				// TODO
+			} else if (event.getSource().equals(btnCreditCardCopyNumber))
+			{
+				// TODO
+			} else if (event.getSource().equals(btnCreditCardCopyOwner))
+			{
+				// TODO
+			} else if (event.getSource().equals(btnCreditCardCopyProvider))
+			{
+				// TODO
+			}
+		} catch (Exception e)
 		{
-			// TODO
-		} else if (event.getSource().equals(btnCreditCardDelete)) // on delete card
-		{
-			// TODO
-		} else if (event.getSource().equals(btnCreditCardEdit)) // on edit card
-		{
-			// TODO
-		} else if (event.getSource().equals(btnCreditCardSaveEdit)) // on save after editing
-		{
-			// TODO
-		} else if (event.getSource().equals(btnCreditCardShowCVV)) // on show/hide cvv
-		{
-			// TODO
-		} else if (event.getSource().equals(btnCreditCardShowNuber)) // onshow/hide number
-		{
-			// TODO
+			ExceptionHandler.hanldeUnexpectedException(e);
 		}
 
-		//COPY BUTTONS DOWN HERE
-		else if (event.getSource().equals(btnCreditCardCopyAdditionalInformation))
-		{
-			// TODO
-		} else if (event.getSource().equals(btnCreditCardCopyBankName))
-		{
-			// TODO
-		} else if (event.getSource().equals(btnCreditCardCopyCVV))
-		{
-			// TODO
-		} else if (event.getSource().equals(btnCreditCardCopyExpireDate))
-		{
-			// TODO
-		} else if (event.getSource().equals(btnCreditCardCopyName))
-		{
-			// TODO
-		} else if (event.getSource().equals(btnCreditCardCopyNumber))
-		{
-			// TODO
-		} else if (event.getSource().equals(btnCreditCardCopyOwner))
-		{
-			// TODO
-		} else if (event.getSource().equals(btnCreditCardCopyProvider))
-		{
-			// TODO
-		} 
-		
 	}
 
 	@FXML

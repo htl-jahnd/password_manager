@@ -7,7 +7,7 @@ import javax.imageio.ImageIO;
 
 public enum ECreditCardsProviders
 {
-	Visa, MasterCard, AmericanExpress, DinersClub, Discover;
+	Visa, MasterCard, AmericanExpress, DinersClub, Discover, Other;
 
 	public static ECreditCardsProviders getProvider(String s)
 	{
@@ -23,6 +23,8 @@ public enum ECreditCardsProviders
 				return DinersClub;
 			case "Discover":
 				return Discover;
+			case "Other":
+				return Other;
 		}
 		return null;
 	}
@@ -41,6 +43,8 @@ public enum ECreditCardsProviders
 				return "DinersClub";
 			case Discover:
 				return "Discover";
+			case Other:
+				return "Other";
 		}
 		return null;
 	}
