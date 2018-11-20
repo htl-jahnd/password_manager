@@ -41,6 +41,7 @@ import pkgData.Database;
 import pkgData.ECreditCardsProviders;
 import pkgData.WebAccount;
 import pkgMisc.ExceptionHandler;
+import pkgMisc.SystemClipboard;
 
 public class Controller_PasswordManager
 {
@@ -440,6 +441,7 @@ public class Controller_PasswordManager
 			{
 				doSetTextFieldsWebAccountEditable(true);
 				paneWebAccountSaveCancelEdit.setVisible(true);
+				paneWebAccountEditDelete.setVisible(false);
 			} else if (event.getSource().equals(btnWebAccountSaveEdit)) // on Save edit
 			{
 				currentAccount.setAdditionalInformation(txtWebAccountAdditionalInformation.getText());
@@ -496,7 +498,10 @@ public class Controller_PasswordManager
 				pkgMisc.SystemClipboard.copy(txtWebAccountName.getText());
 			} else if (event.getSource().equals(btnWebAccountCopyPassword))
 			{
-				pkgMisc.SystemClipboard.copy(pwdWebAccountPassword.getText());
+				if (txtWebAccountPassword.isVisible())
+					SystemClipboard.copy(txtWebAccountPassword.getText());
+				else
+					pkgMisc.SystemClipboard.copy(pwdWebAccountPassword.getText());
 			} else if (event.getSource().equals(btnWebAccountCopyURL))
 			{
 				pkgMisc.SystemClipboard.copy(txtWebAccountURL.getText());
@@ -546,7 +551,7 @@ public class Controller_PasswordManager
 				paneCreditCardEditDelete.setVisible(false);
 				paneCreditCardSaveCancelEdit.setVisible(true);
 				doSetTextFieldsCreditCardEditable(true);
-				db.addCreditCard(currentCard);
+				db.addCreditCard(currentCard); // TODO set list disabled until cancel or save has been clicked
 			} else if (event.getSource().equals(btnCreditCardCancelEdit)) // on cancel editing
 			{
 				doFillTextFieldsCreditCard();
@@ -563,42 +568,108 @@ public class Controller_PasswordManager
 			{
 				doSetTextFieldsCreditCardEditable(true);
 				paneCreditCardSaveCancelEdit.setVisible(true);
+				paneCreditCardEditDelete.setVisible(false);
 			} else if (event.getSource().equals(btnCreditCardSaveEdit)) // on save after editing
 			{
-				// TODO
+				currentCard.setAdditionalInformation(txtCreditCardAdditionalInformation.getText());
+				currentCard.setBankName(txtCreditCardBankName.getText());
+				currentCard.setCardName(txtCreditCardName.getText());
+				if (txtCreditCardNumber.isVisible())
+					currentCard.setCardNumber(txtCreditCardNumber.getText());
+				else
+					currentCard.setCardNumber(pwdCreditCardNumber.getText());
+				currentCard.setExpireDateOfString(txtCreditCardExpireDate.getText());
+				currentCard.setOwnerName(txtCreditCardOwner.getText());
+				currentCard.setProvider(cmbxCreditCardProvider.getValue());
+				if (txtCreditCardCVV.isVisible())
+					currentCard.setSecurityCode(Integer.valueOf(txtCreditCardCVV.getText()));
+				else
+					currentCard.setSecurityCode(Integer.valueOf(pwdCreditCardCVV.getText()));
+
+				db.updateCreditCard(currentCard);
+
+				doFillTextFieldsCreditCard();
+				doSetTextFieldsCreditCardEditable(false);
+				paneCreditCardEditDelete.setVisible(true);
+				paneCreditCardSaveCancelEdit.setVisible(false);
+				imgCreditCardThumbnail.setImage(currentCard.getThumbnail());
 			} else if (event.getSource().equals(btnCreditCardShowCVV)) // on show/hide cvv
 			{
-				// TODO
-			} else if (event.getSource().equals(btnCreditCardShowNuber)) // onshow/hide number
+				if (txtCreditCardCVV.isVisible())
+				{
+					String pwd = txtCreditCardCVV.getText();
+					pwdCreditCardCVV.setVisible(true);
+					txtCreditCardCVV.setVisible(false);
+					pwdCreditCardCVV.setText(pwd);
+					imgCreditCardShowHideCVV.setImage(SwingFXUtils.toFXImage(
+							ImageIO.read(getClass().getResourceAsStream("/pkgMain/ressources/images/eye-solid.png")),
+							null));
+				} else
+				{
+					String pwd = pwdCreditCardCVV.getText();
+					pwdCreditCardCVV.setVisible(false);
+					txtCreditCardCVV.setVisible(true);
+					txtCreditCardCVV.setText(pwd);
+					imgCreditCardShowHideCVV.setImage(SwingFXUtils.toFXImage(
+							ImageIO.read(
+									getClass().getResourceAsStream("/pkgMain/ressources/images/eye-slash-solid.png")),
+							null));
+				}
+			} else if (event.getSource().equals(btnCreditCardShowNuber)) // on show/hide number
 			{
-				// TODO
+				if (txtCreditCardNumber.isVisible())
+				{
+					String pwd = txtCreditCardNumber.getText();
+					pwdCreditCardNumber.setVisible(true);
+					txtCreditCardNumber.setVisible(false);
+					pwdCreditCardNumber.setText(pwd);
+					imgCreditCardShowHideNumber.setImage(SwingFXUtils.toFXImage(
+							ImageIO.read(getClass().getResourceAsStream("/pkgMain/ressources/images/eye-solid.png")),
+							null));
+				} else
+				{
+					String pwd = pwdCreditCardNumber.getText();
+					pwdCreditCardNumber.setVisible(false);
+					txtCreditCardNumber.setVisible(true);
+					txtCreditCardNumber.setText(pwd);
+					imgCreditCardShowHideNumber.setImage(SwingFXUtils.toFXImage(
+							ImageIO.read(
+									getClass().getResourceAsStream("/pkgMain/ressources/images/eye-slash-solid.png")),
+							null));
+				}
 			}
 
 			// COPY BUTTONS DOWN HERE
 			else if (event.getSource().equals(btnCreditCardCopyAdditionalInformation))
 			{
-				// TODO
+				SystemClipboard.copy(txtCreditCardAdditionalInformation.getText());
 			} else if (event.getSource().equals(btnCreditCardCopyBankName))
 			{
-				// TODO
+				SystemClipboard.copy(txtCreditCardBankName.getText());
 			} else if (event.getSource().equals(btnCreditCardCopyCVV))
 			{
-				// TODO
+				if (txtCreditCardCVV.isVisible())
+					SystemClipboard.copy(txtCreditCardCVV.getText());
+				else
+					SystemClipboard.copy(pwdCreditCardCVV.getText());
 			} else if (event.getSource().equals(btnCreditCardCopyExpireDate))
 			{
-				// TODO
+				SystemClipboard.copy(txtCreditCardExpireDate.getText());
 			} else if (event.getSource().equals(btnCreditCardCopyName))
 			{
-				// TODO
+				SystemClipboard.copy(txtCreditCardName.getText());
 			} else if (event.getSource().equals(btnCreditCardCopyNumber))
 			{
-				// TODO
+				if (txtCreditCardNumber.isVisible())
+					SystemClipboard.copy(txtCreditCardNumber.getText());
+				else
+					SystemClipboard.copy(pwdCreditCardNumber.getText());
 			} else if (event.getSource().equals(btnCreditCardCopyOwner))
 			{
-				// TODO
+				SystemClipboard.copy(txtCreditCardOwner.getText());
 			} else if (event.getSource().equals(btnCreditCardCopyProvider))
 			{
-				// TODO
+				SystemClipboard.copy(cmbxCreditCardProvider.getValue().toString());
 			}
 		} catch (Exception e)
 		{
@@ -705,7 +776,7 @@ public class Controller_PasswordManager
 		txtCreditCardName.setEditable(state);
 		txtCreditCardOwner.setEditable(state);
 		txtCreditCardBankName.setEditable(state);
-		cmbxCreditCardProvider.setEditable(state);
+		cmbxCreditCardProvider.setDisable(!state);
 		txtCreditCardExpireDate.setEditable(state);
 		txtCreditCardAdditionalInformation.setEditable(state);
 		if (txtCreditCardNumber.isVisible())

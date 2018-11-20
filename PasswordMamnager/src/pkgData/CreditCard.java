@@ -61,8 +61,9 @@ public class CreditCard extends Card
 		return provider;
 	}
 
-	public void setProvider(ECreditCardsProviders provider)
+	public void setProvider(ECreditCardsProviders provider) throws IOException
 	{
+		checkForProviderPicture();
 		this.provider = provider;
 	}
 

@@ -16,7 +16,7 @@ public class Database
 	private static Database instance = null;
 	private static Connection conn = null;
 	private static boolean isConnectionSet = false;
-	private static String connectionString = "212.152.179.117"; // TODO insert proper external ip address
+	private static String connectionString = "192.168.128.152"; // TODO insert proper external ip address
 	private static final ArrayList<WebAccount> accounts = new ArrayList<WebAccount>();
 	private static final ArrayList<ProgramLicense> licenses = new ArrayList<ProgramLicense>();
 	private static final ArrayList<CreditCard> creditCards = new ArrayList<CreditCard>();
@@ -137,9 +137,9 @@ public class Database
 		}
 		StringBuilder bu = new StringBuilder("jdbc:oracle:thin:@").append(connectionString).append(":1521:ora11g");
 		connectionString = bu.toString();
-		DriverManager.setLoginTimeout(3);
-		conn = DriverManager.getConnection(connectionString, DB_USER, DB_PWD); // Connects with database user "d4b12"
-		conn.setAutoCommit(true);
+//		DriverManager.setLoginTimeout(3);
+//		conn = DriverManager.getConnection(connectionString, DB_USER, DB_PWD); // Connects with database user "d4b12"
+//		conn.setAutoCommit(true);
 		isConnectionSet = true;
 
 	}
