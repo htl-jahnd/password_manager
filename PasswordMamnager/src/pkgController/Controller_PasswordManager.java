@@ -255,8 +255,7 @@ public class Controller_PasswordManager
 	private ObservableList<CreditCard> listCreditCards;
 	private Database db;
 	private WebAccount currentAccount = null;
-	private CreditCard currentCard;
-	private boolean webAccountPasswordVisible;
+	private CreditCard currentCard=null;
 
 	// ============================================================
 	// ============================================================
@@ -364,14 +363,16 @@ public class Controller_PasswordManager
 		});
 
 		// TEST DATA
-		listWebAccounts.add(new WebAccount("test1", "google.com", "http://www.google.com/", "googleUser",
+		listWebAccounts.add(new WebAccount("test1", "google.com", "https://www.google.com/", "googleUser",
 				"googlePassword", "info for google"));
-		listWebAccounts.add(new WebAccount("test2", "facebook.com", "http://www.facebook.com/", "fbUser", "fbPassword",
+		listWebAccounts.add(new WebAccount("test2", "facebook.com", "https://www.facebook.com/", "fbUser", "fbPassword",
 				"info for fb"));
-		listWebAccounts.add(new WebAccount("test3", "twitter.com", "http://www.twitter.com/", "tiwtterUser",
+		listWebAccounts.add(new WebAccount("test3", "twitter.com", "https://www.twitter.com/", "tiwtterUser",
 				"twitterPassword", "info for twitter"));
-		listWebAccounts.add(new WebAccount("test4", "tumblr.com", "http://www.tumblr.com/", "tumblrUser",
+		listWebAccounts.add(new WebAccount("test4", "tumblr.com", "https://www.tumblr.com/", "tumblrUser",
 				"tumblrPassword", "info for tumblr"));
+		listWebAccounts.add(new WebAccount("Pronhub", "pornhub.com", "https://www.pornhub.com/", "pornubUser",
+				"pornubPassword", "info for pornub"));
 
 		listCreditCards.add(new CreditCard("Test card 1", "1234 5678", "Owner No1", YearMonth.of(2020, 11),
 				ECreditCardsProviders.Visa, "Infooo", "Erste Bank", 1234));
@@ -386,6 +387,10 @@ public class Controller_PasswordManager
 			paneCreditCardList.setVisible(false);
 			paneWebAccountDetails.setVisible(true);
 			paneWebAccountList.setVisible(true);
+			if (currentAccount == null)
+			{
+				paneWebAccountDetails.setVisible(false);
+			}
 			// TODO do this for later things too
 		} else if (event.getSource().equals(btnCreditCard))
 		{
@@ -393,6 +398,10 @@ public class Controller_PasswordManager
 			paneCreditCardList.setVisible(true);
 			paneWebAccountDetails.setVisible(false);
 			paneWebAccountList.setVisible(false);
+			if (currentCard == null)
+			{
+				paneCreditCardDetails.setVisible(false);
+			}
 			// TODO do this for later things too
 		} else if (event.getSource().equals(btnIdentities))
 		{
@@ -425,12 +434,17 @@ public class Controller_PasswordManager
 				paneWebAccountSaveCancelEdit.setVisible(true);
 				doSetTextFieldsWebAccountEditable(true);
 				db.addWebAccount(currentAccount);
+				listViewWebAccount.setDisable(true);
+				paneWebAccountDetails.setVisible(true);
+				btnWebAccountAdd.setDisable(true);
 			} else if (event.getSource().equals(btnWebAccountCancelEdit)) // on cancel edit
 			{
 				doFillTextFieldsWebAccount();
 				doSetTextFieldsWebAccountEditable(false);
 				paneWebAccountSaveCancelEdit.setVisible(false);
 				paneWebAccountEditDelete.setVisible(true);
+				listViewWebAccount.setDisable(false);
+				btnWebAccountAdd.setDisable(false);
 			} else if (event.getSource().equals(btnWebAccountDelete)) // on delete
 			{
 				if (doShowDeleteDialogWebAccount())
@@ -442,6 +456,8 @@ public class Controller_PasswordManager
 				doSetTextFieldsWebAccountEditable(true);
 				paneWebAccountSaveCancelEdit.setVisible(true);
 				paneWebAccountEditDelete.setVisible(false);
+				listViewWebAccount.setDisable(true);
+				btnWebAccountAdd.setDisable(true);
 			} else if (event.getSource().equals(btnWebAccountSaveEdit)) // on Save edit
 			{
 				currentAccount.setAdditionalInformation(txtWebAccountAdditionalInformation.getText());
@@ -457,16 +473,16 @@ public class Controller_PasswordManager
 				paneWebAccountEditDelete.setVisible(true);
 				paneWebAccountSaveCancelEdit.setVisible(false);
 				imgWebAccountThumbnail.setImage(currentAccount.getThumbnail());
-
+				listViewWebAccount.setDisable(false);
+				btnWebAccountAdd.setDisable(false);
 			} else if (event.getSource().equals(btnWebAccountShowHidePassword))
 			{
-				if (webAccountPasswordVisible)
+				if (txtWebAccountPassword.isVisible())
 				{
 					String pwd = txtWebAccountPassword.getText();
 					pwdWebAccountPassword.setVisible(true);
 					txtWebAccountPassword.setVisible(false);
 					pwdWebAccountPassword.setText(pwd);
-					webAccountPasswordVisible = false;
 					imgWebAccountShowHidePassword.setImage(SwingFXUtils.toFXImage(
 							ImageIO.read(getClass().getResourceAsStream("/pkgMain/ressources/images/eye-solid.png")),
 							null));
@@ -476,7 +492,6 @@ public class Controller_PasswordManager
 					pwdWebAccountPassword.setVisible(false);
 					txtWebAccountPassword.setVisible(true);
 					txtWebAccountPassword.setText(pwd);
-					webAccountPasswordVisible = true;
 					imgWebAccountShowHidePassword.setImage(SwingFXUtils.toFXImage(
 							ImageIO.read(
 									getClass().getResourceAsStream("/pkgMain/ressources/images/eye-slash-solid.png")),
@@ -551,13 +566,18 @@ public class Controller_PasswordManager
 				paneCreditCardEditDelete.setVisible(false);
 				paneCreditCardSaveCancelEdit.setVisible(true);
 				doSetTextFieldsCreditCardEditable(true);
-				db.addCreditCard(currentCard); // TODO set list disabled until cancel or save has been clicked
+				db.addCreditCard(currentCard);
+				listViewCreditCard.setDisable(true);
+				paneCreditCardDetails.setVisible(true);
+				btnCreditCardAdd.setDisable(true);
 			} else if (event.getSource().equals(btnCreditCardCancelEdit)) // on cancel editing
 			{
 				doFillTextFieldsCreditCard();
 				doSetTextFieldsCreditCardEditable(false);
 				paneCreditCardSaveCancelEdit.setVisible(false);
 				paneCreditCardEditDelete.setVisible(true);
+				listViewCreditCard.setDisable(false);
+				btnCreditCardAdd.setDisable(false);
 			} else if (event.getSource().equals(btnCreditCardDelete)) // on delete card
 			{
 				if (doShowDeleteDialogCreditCard())
@@ -569,6 +589,8 @@ public class Controller_PasswordManager
 				doSetTextFieldsCreditCardEditable(true);
 				paneCreditCardSaveCancelEdit.setVisible(true);
 				paneCreditCardEditDelete.setVisible(false);
+				listViewCreditCard.setDisable(true);
+				btnCreditCardAdd.setDisable(true);
 			} else if (event.getSource().equals(btnCreditCardSaveEdit)) // on save after editing
 			{
 				currentCard.setAdditionalInformation(txtCreditCardAdditionalInformation.getText());
@@ -593,6 +615,8 @@ public class Controller_PasswordManager
 				paneCreditCardEditDelete.setVisible(true);
 				paneCreditCardSaveCancelEdit.setVisible(false);
 				imgCreditCardThumbnail.setImage(currentCard.getThumbnail());
+				listViewCreditCard.setDisable(false);
+				btnCreditCardAdd.setDisable(false);
 			} else if (event.getSource().equals(btnCreditCardShowCVV)) // on show/hide cvv
 			{
 				if (txtCreditCardCVV.isVisible())
@@ -638,7 +662,6 @@ public class Controller_PasswordManager
 							null));
 				}
 			}
-
 			// COPY BUTTONS DOWN HERE
 			else if (event.getSource().equals(btnCreditCardCopyAdditionalInformation))
 			{
@@ -704,21 +727,26 @@ public class Controller_PasswordManager
 
 	private void doDeleteWebAccount()
 	{
-		// db.deleteWebAccount(currentAccount); TODO
 		int pos = listWebAccounts.indexOf(currentAccount);
 		db.deleteWebAccount(currentAccount);
 		listWebAccounts.remove(currentAccount);
 		if (pos > 0)
+		{
 			currentAccount = listWebAccounts.get(pos - 1);
-		else if (pos == 0)
+			doFillTextFieldsWebAccount();
+		} else if (pos == 0 && listWebAccounts.size() > 0)
+		{
 			currentAccount = listWebAccounts.get(pos);
-		doFillTextFieldsWebAccount();
+			doFillTextFieldsWebAccount();
+		}
+		currentAccount = null;
+		paneWebAccountDetails.setVisible(false);
 	}
 
 	private void doSetTextFieldsWebAccountEditable(boolean state)
 	{
 		txtWebAccountName.setEditable(state);
-		if (webAccountPasswordVisible == true)
+		if (txtWebAccountPassword.isVisible())
 		{
 			txtWebAccountPassword.setEditable(state);
 		} else
@@ -797,7 +825,6 @@ public class Controller_PasswordManager
 		Alert alert = new Alert(AlertType.CONFIRMATION, "Delete " + currentCard.getCardName() + " ?", ButtonType.YES,
 				ButtonType.NO, ButtonType.CANCEL);
 		alert.showAndWait();
-
 		return alert.getResult() == ButtonType.YES;
 
 	}
@@ -808,10 +835,16 @@ public class Controller_PasswordManager
 		db.delteCreditCard(currentCard);
 		listCreditCards.remove(currentCard);
 		if (pos > 0)
+		{
 			currentCard = listCreditCards.get(pos - 1);
-		else if (pos == 0)
+			doFillTextFieldsCreditCard();
+		} else if (pos == 0 && listCreditCards.size() > 0)
+		{
 			currentCard = listCreditCards.get(pos);
-		doFillTextFieldsCreditCard();
+			doFillTextFieldsCreditCard();
+		}
+		currentCard = null;
+		paneCreditCardDetails.setVisible(false);
 	}
 
 }
