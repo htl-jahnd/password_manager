@@ -255,7 +255,7 @@ public class Controller_PasswordManager
 	private ObservableList<CreditCard> listCreditCards;
 	private Database db;
 	private WebAccount currentAccount = null;
-	private CreditCard currentCard=null;
+	private CreditCard currentCard = null;
 
 	// ============================================================
 	// ============================================================
@@ -371,11 +371,11 @@ public class Controller_PasswordManager
 				"twitterPassword", "info for twitter"));
 		listWebAccounts.add(new WebAccount("test4", "tumblr.com", "https://www.tumblr.com/", "tumblrUser",
 				"tumblrPassword", "info for tumblr"));
-		listWebAccounts.add(new WebAccount("Pronhub", "pornhub.com", "https://www.pornhub.com/", "pornubUser",
-				"pornubPassword", "info for pornub"));
+		listWebAccounts.add(new WebAccount("Pronhub", "pornhub.com", "https://www.pornhub.com/", "pornhubUser",
+				"pornhubPassword", "info for pornhub"));
 
 		listCreditCards.add(new CreditCard("Test card 1", "1234 5678", "Owner No1", YearMonth.of(2020, 11),
-				ECreditCardsProviders.Visa, "Infooo", "Erste Bank", 1234));
+				ECreditCardsProviders.Visa, "Infooo", "Erste Bank", 123));
 	}
 
 	@FXML
@@ -424,7 +424,7 @@ public class Controller_PasswordManager
 		{
 			if (event.getSource().equals(btnWebAccountAdd)) // on add account
 			{
-				WebAccount tmp = new WebAccount("Name", "example.com", "http://example.com", "max.mustermann", "1234",
+				WebAccount tmp = new WebAccount("Name", "example.com", "http://example.com/", "max.mustermann", "1234",
 						"Info for example.com.");
 				listWebAccounts.add(tmp);
 				currentAccount = tmp;
@@ -462,7 +462,10 @@ public class Controller_PasswordManager
 			{
 				currentAccount.setAdditionalInformation(txtWebAccountAdditionalInformation.getText());
 				currentAccount.setName(txtWebAccountName.getText());
-				currentAccount.setPassword(pwdWebAccountPassword.getText());
+				if (txtWebAccountPassword.isVisible())
+					currentAccount.setPassword(txtWebAccountPassword.getText());
+				else
+					currentAccount.setPassword(pwdWebAccountPassword.getText());
 				currentAccount.setUsername(txtWebAccountUsername.getText());
 				currentAccount.setWebsiteURL(txtWebAccountURL.getText());
 
@@ -593,23 +596,38 @@ public class Controller_PasswordManager
 				btnCreditCardAdd.setDisable(true);
 			} else if (event.getSource().equals(btnCreditCardSaveEdit)) // on save after editing
 			{
-				currentCard.setAdditionalInformation(txtCreditCardAdditionalInformation.getText());
-				currentCard.setBankName(txtCreditCardBankName.getText());
-				currentCard.setCardName(txtCreditCardName.getText());
+				String nm;
 				if (txtCreditCardNumber.isVisible())
-					currentCard.setCardNumber(txtCreditCardNumber.getText());
+					nm = txtCreditCardNumber.getText();
 				else
-					currentCard.setCardNumber(pwdCreditCardNumber.getText());
-				currentCard.setExpireDateOfString(txtCreditCardExpireDate.getText());
-				currentCard.setOwnerName(txtCreditCardOwner.getText());
-				currentCard.setProvider(cmbxCreditCardProvider.getValue());
+					nm = pwdCreditCardNumber.getText();
+				String cvv;
 				if (txtCreditCardCVV.isVisible())
-					currentCard.setSecurityCode(Integer.valueOf(txtCreditCardCVV.getText()));
+					cvv = txtCreditCardCVV.getText();
 				else
-					currentCard.setSecurityCode(Integer.valueOf(pwdCreditCardCVV.getText()));
+					cvv = pwdCreditCardCVV.getText();
+				CreditCard tmp = currentCard;
+				try
+				{
+					tmp = new CreditCard(txtCreditCardName.getText(), nm, txtCreditCardOwner.getText(),
+							CreditCard.getExpireDateOfString(txtCreditCardExpireDate.getText()),
+							cmbxCreditCardProvider.getValue(), txtCreditCardAdditionalInformation.getText(),
+							txtCreditCardBankName.getText(),  Integer.valueOf(cvv));
+				} catch (Exception ex)
+				{
+					doFillTextFieldsCreditCard();
+					btnCreditCardCancelEdit.arm();
+					return;
+				}
+				currentCard.setAdditionalInformation(tmp.getAdditionalInformation());
+				currentCard.setBankName(tmp.getBankName());
+				currentCard.setCardName(tmp.getCardName());
+
+				currentCard.setExpireDateOfString(tmp.getExpireDateAsString());
+				currentCard.setOwnerName(tmp.getOwnerName());
+				currentCard.setProvider(tmp.getProvider());
 
 				db.updateCreditCard(currentCard);
-
 				doFillTextFieldsCreditCard();
 				doSetTextFieldsCreditCardEditable(false);
 				paneCreditCardEditDelete.setVisible(true);
@@ -746,12 +764,8 @@ public class Controller_PasswordManager
 	private void doSetTextFieldsWebAccountEditable(boolean state)
 	{
 		txtWebAccountName.setEditable(state);
-		if (txtWebAccountPassword.isVisible())
-		{
-			txtWebAccountPassword.setEditable(state);
-		} else
-			pwdWebAccountPassword.setEditable(state);
-
+		txtWebAccountPassword.setEditable(state);
+		pwdWebAccountPassword.setEditable(state);
 		txtWebAccountURL.setEditable(state);
 		txtWebAccountUsername.setEditable(state);
 		txtWebAccountAdditionalInformation.setEditable(state);
@@ -807,23 +821,16 @@ public class Controller_PasswordManager
 		cmbxCreditCardProvider.setDisable(!state);
 		txtCreditCardExpireDate.setEditable(state);
 		txtCreditCardAdditionalInformation.setEditable(state);
-		if (txtCreditCardNumber.isVisible())
-		{
-			txtCreditCardNumber.setEditable(state);
-		} else
-			pwdCreditCardNumber.setEditable(state);
-		if (txtCreditCardCVV.isVisible())
-		{
-			txtCreditCardCVV.setEditable(state);
-		} else
-			pwdCreditCardCVV.setEditable(state);
-
+		txtCreditCardNumber.setEditable(state);
+		pwdCreditCardNumber.setEditable(state);
+		txtCreditCardCVV.setEditable(state);
+		pwdCreditCardCVV.setEditable(state);
 	}
 
 	private boolean doShowDeleteDialogCreditCard()
 	{
-		Alert alert = new Alert(AlertType.CONFIRMATION, "Delete " + currentCard.getCardName() + " ?", ButtonType.YES,
-				ButtonType.NO, ButtonType.CANCEL);
+		Alert alert = new Alert(AlertType.CONFIRMATION, "Delete Credit Card" + currentCard.getCardName() + " ?",
+				ButtonType.YES, ButtonType.NO, ButtonType.CANCEL);
 		alert.showAndWait();
 		return alert.getResult() == ButtonType.YES;
 
@@ -846,5 +853,4 @@ public class Controller_PasswordManager
 		currentCard = null;
 		paneCreditCardDetails.setVisible(false);
 	}
-
 }

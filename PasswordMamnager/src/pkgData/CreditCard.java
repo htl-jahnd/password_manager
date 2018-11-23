@@ -4,10 +4,11 @@ import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.time.YearMonth;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 
 import javafx.embed.swing.SwingFXUtils;
 import javafx.scene.image.Image;
-import pkgExceptions.InvalidCVVCodeException;
+import pkgExceptions.InvalidCardException;
 
 public class CreditCard extends Card
 {
@@ -17,14 +18,14 @@ public class CreditCard extends Card
 	private Integer securityCode;
 	private BufferedImage thumbnail;
 
-	public CreditCard(String cardName, String cardNumber, String cardOwner, YearMonth validationDate,
+	public CreditCard(String cardName, String cardNumber, String cardOwner, YearMonth expireDate,
 			ECreditCardsProviders provider, String additionalInformation, String bankName, Integer securityCode,
-			BufferedImage thumbnail) throws IOException
+			BufferedImage thumbnail) throws IOException, InvalidCardException
 	{
-		super(cardName, cardOwner, bankName, validationDate, additionalInformation);
-		this.cardNumber = cardNumber;
-		this.provider = provider;
-		this.securityCode = securityCode;
+		super(cardName, cardOwner, bankName, expireDate, additionalInformation);
+		setCardNumber(cardNumber);
+		setProvider(provider);
+		setSecurityCode(securityCode);
 		if (thumbnail == null)
 		{
 			checkForProviderPicture();
@@ -32,15 +33,9 @@ public class CreditCard extends Card
 			this.thumbnail = thumbnail;
 	}
 
-	private void checkForProviderPicture() throws IOException
-	{
-		thumbnail = ECreditCardsProviders.getProviderPicture(provider);
-
-	}
-
 	public CreditCard(String cardName, String cardNumber, String cardOwner, YearMonth validationDate,
 			ECreditCardsProviders provider, String additionalInformation, String bankName, Integer securityCode)
-			throws IOException
+			throws IOException, InvalidCardException
 	{
 		this(cardName, cardNumber, cardOwner, validationDate, provider, additionalInformation, bankName, securityCode,
 				null);
@@ -51,8 +46,12 @@ public class CreditCard extends Card
 		return cardNumber;
 	}
 
-	public void setCardNumber(String cardNumber)
+	public void setCardNumber(String cardNumber) throws InvalidCardException
 	{
+		if (cardNumber.trim().isEmpty())
+			throw new InvalidCardException("Credit Card number must not be empty");
+//		else if (!validateCreditCardNumber(cardNumber))
+//			throw new InvalidCardException("Credit card number is not valid");
 		this.cardNumber = cardNumber;
 	}
 
@@ -63,8 +62,8 @@ public class CreditCard extends Card
 
 	public void setProvider(ECreditCardsProviders provider) throws IOException
 	{
-		checkForProviderPicture();
 		this.provider = provider;
+		checkForProviderPicture();
 	}
 
 	public int getSecurityCode()
@@ -72,10 +71,10 @@ public class CreditCard extends Card
 		return securityCode;
 	}
 
-	public void setSecurityCode(Integer securityCode) throws InvalidCVVCodeException
+	public void setSecurityCode(Integer securityCode) throws InvalidCardException
 	{
 		if (String.valueOf(securityCode).length() != 3)
-			throw new InvalidCVVCodeException("ERROR: The security code has to be three digits long");
+			throw new InvalidCardException("The security code has to be three digits long");
 		this.securityCode = securityCode;
 	}
 
@@ -95,9 +94,54 @@ public class CreditCard extends Card
 		return ret;
 	}
 
-	public void setExpireDateOfString(String expDate)
+	public void setExpireDateOfString(String expDate) throws InvalidCardException
 	{
-		this.setExpireDate(YearMonth.parse(expDate, DateTimeFormatter.ofPattern("MM/yy")));
+		try
+		{
+			this.setExpireDate(YearMonth.parse(expDate, DateTimeFormatter.ofPattern("MM/yy")));
+		} catch (DateTimeParseException ex)
+		{
+			throw new InvalidCardException("Expire date must have the format 'MM/YY'");
+		}
+
+	}
+	
+	public static YearMonth getExpireDateOfString(String in) throws InvalidCardException
+	{
+		try
+		{
+			return YearMonth.parse(in, DateTimeFormatter.ofPattern("MM/yy"));
+		} catch (DateTimeParseException ex)
+		{
+			throw new InvalidCardException("Expire date must have the format 'MM/YY'");
+		}
+	}
+
+	private boolean validateCreditCardNumber(String str)
+	{
+
+		int sum = 0;
+		boolean alternate = false;
+		for (int i = str.length() - 1; i >= 0; i--)
+		{
+			int n = Integer.parseInt(str.substring(i, i + 1));
+			if (alternate)
+			{
+				n *= 2;
+				if (n > 9)
+				{
+					n = (n % 10) + 1;
+				}
+			}
+			sum += n;
+			alternate = !alternate;
+		}
+		return (sum % 10 == 0);
+	}
+
+	private void checkForProviderPicture() throws IOException
+	{
+		thumbnail = ECreditCardsProviders.getProviderPicture(provider);
 	}
 
 }
