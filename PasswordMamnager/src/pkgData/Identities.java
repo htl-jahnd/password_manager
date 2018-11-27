@@ -14,8 +14,6 @@ public class Identities
 	private String stateAddress;
 	private LocalDate dateOfBirth;
 	private String country;
-	
-	
 
 	public Identities(ESalutation salutation, String firstName, String surName, String streetAddress,
 			String cityAddress, int zipAddress, String stateAddress, LocalDate dateOfBirth, String country)

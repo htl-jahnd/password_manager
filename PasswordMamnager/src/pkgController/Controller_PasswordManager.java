@@ -39,6 +39,8 @@ import javafx.scene.paint.Color;
 import pkgData.CreditCard;
 import pkgData.Database;
 import pkgData.ECreditCardsProviders;
+import pkgData.ESex;
+import pkgData.Passport;
 import pkgData.WebAccount;
 import pkgMisc.ExceptionHandler;
 import pkgMisc.SystemClipboard;
@@ -57,6 +59,9 @@ public class Controller_PasswordManager
 
 	@FXML
 	private JFXButton btnCreditCard;
+
+	@FXML
+	private JFXButton btnPassport;
 
 	@FXML
 	private JFXButton btnIdentities;
@@ -81,6 +86,15 @@ public class Controller_PasswordManager
 
 	@FXML
 	private JFXListView<CreditCard> listViewCreditCard;
+
+	@FXML
+	private VBox panePassportsList;
+
+	@FXML
+	private JFXButton btnPassportAdd;
+
+	@FXML
+	private JFXListView<Passport> listViewPassport;
 
 	@FXML
 	private VBox paneWebAccountDetails;
@@ -233,6 +247,9 @@ public class Controller_PasswordManager
 	private JFXButton btnCreditCardCopyCVV;
 
 	@FXML
+	private JFXPasswordField pwdCreditCardCVV;
+
+	@FXML
 	private HBox paneCreditCardSaveCancelEdit;
 
 	@FXML
@@ -242,7 +259,100 @@ public class Controller_PasswordManager
 	private JFXButton btnCreditCardSaveEdit;
 
 	@FXML
-	private JFXPasswordField pwdCreditCardCVV;
+	private VBox panePassportDetails;
+
+	@FXML
+	private Label lblPassportName;
+
+	@FXML
+	private ImageView imgPassportThumbnail;
+
+	@FXML
+	private HBox panePassportEditDelete;
+
+	@FXML
+	private JFXButton btnPassportEdit;
+
+	@FXML
+	private JFXButton btnPassportDelete;
+
+	@FXML
+	private JFXPasswordField txtPassportExpirationDate;
+
+	@FXML
+	private JFXTextField txtPassportNationality;
+
+	@FXML
+	private JFXTextField txtPassportSurname;
+
+	@FXML
+	private JFXTextArea txtPassportAdditionalInformation;
+
+	@FXML
+	private JFXTextField txtPassportGivenNames;
+
+	@FXML
+	private JFXButton btnPassportCopyGivenNames;
+
+	@FXML
+	private JFXButton btnPassportCopySurname;
+
+	@FXML
+	private JFXButton btnPassportCopyNationality;
+
+	@FXML
+	private JFXButton btnPassportCopyExpirationDate;
+
+	@FXML
+	private JFXButton btnPassportCopyAdditionalInformation;
+
+	@FXML
+	private JFXButton btnPassportCopyDateOfBirth;
+
+	@FXML
+	private JFXTextField txtPassportNumber;
+
+	@FXML
+	private JFXButton btnPassportShowHideNumber;
+
+	@FXML
+	private ImageView imgPassportShowHideNumber;
+
+	@FXML
+	private JFXTextField txtPassportDateOfIssue;
+
+	@FXML
+	private JFXButton btnPassportCopyDateOfIssue;
+
+	@FXML
+	private JFXButton btnPassportCopyNumber;
+
+	@FXML
+	private JFXPasswordField pwdPassportNumber;
+
+	@FXML
+	private JFXTextField txtPassportDateOfBirth;
+
+	@FXML
+	private JFXTextField txtPassportAuthority;
+
+	@FXML
+	private JFXComboBox<ESex> cmbxPassportSex;
+
+	@FXML
+	private JFXButton btnPassportCopyAuthority;
+
+	@FXML
+	private JFXButton btnPassportCopySex;
+
+	@FXML
+	private HBox panePassportSaveCancelEdit;
+
+	@FXML
+	private JFXButton panePassportCancelEdit;
+
+	@FXML
+	private JFXButton btnPassportSaveEdit;
 
 	// ============================================================
 	// ============================================================
@@ -406,7 +516,11 @@ public class Controller_PasswordManager
 		} else if (event.getSource().equals(btnIdentities))
 		{
 			// TODO do this for later things too
-		} else if (event.getSource().equals(btnSettings))
+		} 
+		else if(event.getSource().equals(btnPassport)) {
+			
+		}
+		else if (event.getSource().equals(btnSettings))
 		{
 			// TODO do this for later things too
 		}
@@ -612,12 +726,12 @@ public class Controller_PasswordManager
 					tmp = new CreditCard(txtCreditCardName.getText(), nm, txtCreditCardOwner.getText(),
 							CreditCard.getExpireDateOfString(txtCreditCardExpireDate.getText()),
 							cmbxCreditCardProvider.getValue(), txtCreditCardAdditionalInformation.getText(),
-							txtCreditCardBankName.getText(),  Integer.valueOf(cvv));
+							txtCreditCardBankName.getText(), Integer.valueOf(cvv));
 				} catch (Exception ex)
 				{
 					doFillTextFieldsCreditCard();
-					btnCreditCardCancelEdit.arm();
-					return;
+					// btnCreditCardCancelEdit.fire();
+					throw ex;
 				}
 				currentCard.setAdditionalInformation(tmp.getAdditionalInformation());
 				currentCard.setBankName(tmp.getBankName());
@@ -635,6 +749,8 @@ public class Controller_PasswordManager
 				imgCreditCardThumbnail.setImage(currentCard.getThumbnail());
 				listViewCreditCard.setDisable(false);
 				btnCreditCardAdd.setDisable(false);
+				// TODO image in list view doesnt refresh automatically, just if click on other
+				// element in list
 			} else if (event.getSource().equals(btnCreditCardShowCVV)) // on show/hide cvv
 			{
 				if (txtCreditCardCVV.isVisible())
@@ -731,6 +847,22 @@ public class Controller_PasswordManager
 				doFillTextFieldsCreditCard();
 			}
 		}
+	}
+
+	// -------------------------------------------------------------
+	// ------------------- Passport things -------------------------
+	// -------------------------------------------------------------
+
+	@FXML
+	void onSelectButtonPassport(ActionEvent event)
+	{
+		//TODO
+	}
+
+	@FXML
+	void onSelectListViewPassport(MouseEvent event)
+	{
+		//TODO
 	}
 
 	// ============================================================
