@@ -92,16 +92,7 @@ public class PasswordUtils
 		cipher.init(Cipher.DECRYPT_MODE, secret, new IvParameterSpec(ivBytes));
 
 		byte[] decryptedTextBytes = null;
-		try
-		{
-			decryptedTextBytes = cipher.doFinal(encryptedTextBytes);
-		} catch (IllegalBlockSizeException e)
-		{
-			e.printStackTrace();
-		} catch (BadPaddingException e)
-		{
-			e.printStackTrace();
-		}
+		decryptedTextBytes = cipher.doFinal(encryptedTextBytes);
 
 		return new String(decryptedTextBytes, STANDARD_CHARSET);
 	}

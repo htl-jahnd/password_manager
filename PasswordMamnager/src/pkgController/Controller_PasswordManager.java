@@ -8,6 +8,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.time.YearMonth;
+import java.time.ZoneId;
 import java.util.Date;
 
 import javax.imageio.ImageIO;
@@ -42,6 +43,7 @@ import pkgData.ECreditCardsProviders;
 import pkgData.ESex;
 import pkgData.Passport;
 import pkgData.WebAccount;
+import pkgMisc.DateUtils;
 import pkgMisc.ExceptionHandler;
 import pkgMisc.SystemClipboard;
 
@@ -277,7 +279,7 @@ public class Controller_PasswordManager
 	private JFXButton btnPassportDelete;
 
 	@FXML
-	private JFXPasswordField txtPassportExpirationDate;
+	private JFXTextField txtPassportExpirationDate;
 
 	@FXML
 	private JFXTextField txtPassportNationality;
@@ -349,10 +351,16 @@ public class Controller_PasswordManager
 	private HBox panePassportSaveCancelEdit;
 
 	@FXML
-	private JFXButton panePassportCancelEdit;
+	private JFXButton btnPassportCancelEdit;
 
 	@FXML
 	private JFXButton btnPassportSaveEdit;
+
+	@FXML
+	private JFXButton btnPassportCopyPlaceOfBirth;
+
+	@FXML
+	private JFXTextField txtPassportPlaceOfBirth;
 
 	// ============================================================
 	// ============================================================
@@ -363,9 +371,13 @@ public class Controller_PasswordManager
 	private ObservableList<WebAccount> listWebAccounts;
 	private ObservableList<ECreditCardsProviders> listCreditCardProviders;
 	private ObservableList<CreditCard> listCreditCards;
+	private ObservableList<ESex> listSex;
+	private ObservableList<Passport> listPassports;
+
 	private Database db;
 	private WebAccount currentAccount = null;
 	private CreditCard currentCard = null;
+	private Passport currentPass = null;
 
 	// ============================================================
 	// ============================================================
@@ -378,6 +390,70 @@ public class Controller_PasswordManager
 	{
 		db = Database.newInstance();
 
+		listSex = FXCollections.observableArrayList();
+		listSex.add(ESex.Female);
+		listSex.add(ESex.Male);
+		cmbxPassportSex.setItems(listSex);
+		cmbxPassportSex.setCellFactory(cmbx -> new ListCell<ESex>() { // TODO find new pictures for male & female
+			@Override
+			protected void updateItem(ESex item, boolean empty)
+			{
+				super.updateItem(item, empty);
+
+				if (empty)
+				{
+					setGraphic(null);
+				} else
+				{
+					// Create a HBox to hold our displayed value
+					HBox hBox = new HBox(2);
+					hBox.setAlignment(Pos.CENTER_LEFT);
+					ImageView iv = new ImageView();
+					try
+					{
+						iv.setImage(SwingFXUtils.toFXImage(ESex.getSexPicture(item), null));
+					} catch (IOException e)
+					{
+						ExceptionHandler.hanldeUnexpectedException(e);
+					}
+					iv.setFitHeight(25);
+					iv.setFitWidth(25);
+					// Add the values from our piece to the HBox
+					hBox.getChildren().addAll(iv, new Label("   " + ESex.getSexString(item)));
+					// Set the HBox as the display
+					setGraphic(hBox);
+				}
+			}
+		});
+
+		listPassports = FXCollections.observableArrayList();
+		listViewPassport.setItems(listPassports); 
+		listViewPassport.setCellFactory(listView -> new ListCell<Passport>() {
+			@Override
+			protected void updateItem(Passport pass, boolean empty)
+			{
+				super.updateItem(pass, empty);
+
+				if (empty)
+				{
+					setGraphic(null);
+				} else
+				{
+					// Create a HBox to hold our displayed value
+					HBox hBox = new HBox(2);
+					hBox.setAlignment(Pos.CENTER_LEFT);
+					ImageView iv = new ImageView(pass.getThumbnail());
+					iv.setFitHeight(25);
+					iv.setFitWidth(25);
+					// Add the values from our piece to the HBox
+					hBox.getChildren().addAll(iv, new Label("   " + pass.getGivenNames() + " "+pass.getSurName()));
+					// Set the HBox as the display
+					setGraphic(hBox);
+				}
+			}
+		});
+		
+		
 		listCreditCardProviders = FXCollections.observableArrayList();
 		listCreditCardProviders.add(ECreditCardsProviders.Visa);
 		listCreditCardProviders.add(ECreditCardsProviders.MasterCard);
@@ -493,6 +569,8 @@ public class Controller_PasswordManager
 	{
 		if (event.getSource().equals(btnWebAccount))
 		{
+			panePassportDetails.setVisible(false);
+			panePassportsList.setVisible(false);
 			paneCreditCardDetails.setVisible(false);
 			paneCreditCardList.setVisible(false);
 			paneWebAccountDetails.setVisible(true);
@@ -508,6 +586,8 @@ public class Controller_PasswordManager
 			paneCreditCardList.setVisible(true);
 			paneWebAccountDetails.setVisible(false);
 			paneWebAccountList.setVisible(false);
+			panePassportDetails.setVisible(false);
+			panePassportsList.setVisible(false);
 			if (currentCard == null)
 			{
 				paneCreditCardDetails.setVisible(false);
@@ -516,11 +596,20 @@ public class Controller_PasswordManager
 		} else if (event.getSource().equals(btnIdentities))
 		{
 			// TODO do this for later things too
-		} 
-		else if(event.getSource().equals(btnPassport)) {
-			
-		}
-		else if (event.getSource().equals(btnSettings))
+		} else if (event.getSource().equals(btnPassport))
+		{
+			panePassportDetails.setVisible(true);
+			panePassportsList.setVisible(true);
+			paneCreditCardDetails.setVisible(false);
+			paneCreditCardList.setVisible(false);
+			paneWebAccountDetails.setVisible(false);
+			paneWebAccountList.setVisible(false);
+			if (currentPass == null)
+			{
+				panePassportDetails.setVisible(false);
+			}
+
+		} else if (event.getSource().equals(btnSettings))
 		{
 			// TODO do this for later things too
 		}
@@ -548,17 +637,15 @@ public class Controller_PasswordManager
 				paneWebAccountSaveCancelEdit.setVisible(true);
 				doSetTextFieldsWebAccountEditable(true);
 				db.addWebAccount(currentAccount);
-				listViewWebAccount.setDisable(true);
 				paneWebAccountDetails.setVisible(true);
-				btnWebAccountAdd.setDisable(true);
+				paneWebAccountList.setDisable(true);
 			} else if (event.getSource().equals(btnWebAccountCancelEdit)) // on cancel edit
 			{
 				doFillTextFieldsWebAccount();
 				doSetTextFieldsWebAccountEditable(false);
 				paneWebAccountSaveCancelEdit.setVisible(false);
 				paneWebAccountEditDelete.setVisible(true);
-				listViewWebAccount.setDisable(false);
-				btnWebAccountAdd.setDisable(false);
+				paneWebAccountList.setDisable(false);
 			} else if (event.getSource().equals(btnWebAccountDelete)) // on delete
 			{
 				if (doShowDeleteDialogWebAccount())
@@ -570,8 +657,7 @@ public class Controller_PasswordManager
 				doSetTextFieldsWebAccountEditable(true);
 				paneWebAccountSaveCancelEdit.setVisible(true);
 				paneWebAccountEditDelete.setVisible(false);
-				listViewWebAccount.setDisable(true);
-				btnWebAccountAdd.setDisable(true);
+				paneWebAccountList.setDisable(true);
 			} else if (event.getSource().equals(btnWebAccountSaveEdit)) // on Save edit
 			{
 				currentAccount.setAdditionalInformation(txtWebAccountAdditionalInformation.getText());
@@ -590,8 +676,8 @@ public class Controller_PasswordManager
 				paneWebAccountEditDelete.setVisible(true);
 				paneWebAccountSaveCancelEdit.setVisible(false);
 				imgWebAccountThumbnail.setImage(currentAccount.getThumbnail());
-				listViewWebAccount.setDisable(false);
-				btnWebAccountAdd.setDisable(false);
+				paneWebAccountList.setDisable(false);
+				listViewWebAccount.refresh();
 			} else if (event.getSource().equals(btnWebAccountShowHidePassword))
 			{
 				if (txtWebAccountPassword.isVisible())
@@ -678,23 +764,21 @@ public class Controller_PasswordManager
 						"Additional Information", "Example Bank", Integer.valueOf(123));
 				listCreditCards.add(tmp);
 				currentCard = tmp;
-				listViewCreditCard.getSelectionModel().select(listWebAccounts.indexOf(currentAccount));
+				listViewCreditCard.getSelectionModel().select(listCreditCards.indexOf(currentCard));
 				doFillTextFieldsCreditCard();
 				paneCreditCardEditDelete.setVisible(false);
 				paneCreditCardSaveCancelEdit.setVisible(true);
 				doSetTextFieldsCreditCardEditable(true);
 				db.addCreditCard(currentCard);
-				listViewCreditCard.setDisable(true);
 				paneCreditCardDetails.setVisible(true);
-				btnCreditCardAdd.setDisable(true);
+				paneCreditCardList.setDisable(true);
 			} else if (event.getSource().equals(btnCreditCardCancelEdit)) // on cancel editing
 			{
 				doFillTextFieldsCreditCard();
 				doSetTextFieldsCreditCardEditable(false);
 				paneCreditCardSaveCancelEdit.setVisible(false);
 				paneCreditCardEditDelete.setVisible(true);
-				listViewCreditCard.setDisable(false);
-				btnCreditCardAdd.setDisable(false);
+				paneCreditCardList.setDisable(false);
 			} else if (event.getSource().equals(btnCreditCardDelete)) // on delete card
 			{
 				if (doShowDeleteDialogCreditCard())
@@ -706,8 +790,7 @@ public class Controller_PasswordManager
 				doSetTextFieldsCreditCardEditable(true);
 				paneCreditCardSaveCancelEdit.setVisible(true);
 				paneCreditCardEditDelete.setVisible(false);
-				listViewCreditCard.setDisable(true);
-				btnCreditCardAdd.setDisable(true);
+				paneCreditCardList.setDisable(true);
 			} else if (event.getSource().equals(btnCreditCardSaveEdit)) // on save after editing
 			{
 				String nm;
@@ -747,10 +830,8 @@ public class Controller_PasswordManager
 				paneCreditCardEditDelete.setVisible(true);
 				paneCreditCardSaveCancelEdit.setVisible(false);
 				imgCreditCardThumbnail.setImage(currentCard.getThumbnail());
-				listViewCreditCard.setDisable(false);
-				btnCreditCardAdd.setDisable(false);
-				// TODO image in list view doesnt refresh automatically, just if click on other
-				// element in list
+				paneCreditCardList.setDisable(false);
+				listViewCreditCard.refresh();
 			} else if (event.getSource().equals(btnCreditCardShowCVV)) // on show/hide cvv
 			{
 				if (txtCreditCardCVV.isVisible())
@@ -856,13 +937,172 @@ public class Controller_PasswordManager
 	@FXML
 	void onSelectButtonPassport(ActionEvent event)
 	{
-		//TODO
+		try
+		{
+			if (event.getSource().equals(btnPassportAdd)) // on add passport
+			{
+				Date now = new Date();
+				// Passport tmp = new Passport("Name", "0000 1111 2222 3333 4444", "Card Owner",
+				// YearMonth.of(now.getYear(), now.getMonth()), ECreditCardsProviders.Other,
+				// "Additional Information", "Example Bank", Integer.valueOf(123));
+
+				Passport tmp = new Passport("John", "Doe", "World", DateUtils.getLocalDateOfString("01.01.1990"),
+						"Sample Town", DateUtils.getLocalDateOfDate(now), DateUtils.getLocalDateOfDate(now),
+						ESex.Male, "Goverment", "123456789", "Some additional Information");
+				listPassports.add(tmp);
+				currentPass = tmp;
+				listViewPassport.getSelectionModel().select(listPassports.indexOf(currentPass));
+				doFillTextFieldsPassport();
+				panePassportEditDelete.setVisible(false);
+				panePassportSaveCancelEdit.setVisible(true);
+				doSetTextFieldsPassportEditable(true);
+				db.addPassport(currentPass);
+				panePassportsList.setDisable(true);
+				panePassportDetails.setVisible(true);
+			} else if (event.getSource().equals(btnPassportDelete)) // on delete passport
+			{
+				if (doShowDeleteDialogPassport())
+				{
+					doDeletePassport();
+				}
+			} else if (event.getSource().equals(btnPassportCancelEdit)) // on cancel while editing passport
+			{
+				doFillTextFieldsPassport();
+				doSetTextFieldsPassportEditable(false);
+				panePassportSaveCancelEdit.setVisible(false);
+				panePassportEditDelete.setVisible(true);
+				panePassportsList.setDisable(false);
+			} else if (event.getSource().equals(btnPassportEdit)) // on edit passport
+			{
+				doSetTextFieldsPassportEditable(true);
+				panePassportSaveCancelEdit.setVisible(true);
+				panePassportEditDelete.setVisible(false);
+				panePassportsList.setDisable(true);
+			} else if (event.getSource().equals(btnPassportSaveEdit)) // on save after edit passport
+			{
+				String nm;
+				if (txtPassportNumber.isVisible())
+					nm = txtPassportNumber.getText();
+				else
+					nm = pwdPassportNumber.getText();
+
+				Passport tmp = null;
+				try
+				{
+					tmp = new Passport(txtPassportGivenNames.getText(), txtPassportSurname.getText(),
+							txtPassportNationality.getText(),
+							DateUtils.getLocalDateOfString(txtPassportDateOfBirth.getText()),
+							txtPassportPlaceOfBirth.getText(),
+							DateUtils.getLocalDateOfString(txtPassportDateOfIssue.getText()), DateUtils.getLocalDateOfString(txtPassportExpirationDate.getText()),cmbxPassportSex.getValue(),
+							txtPassportAuthority.getText(),nm,txtPassportAdditionalInformation.getText());
+				} catch (Exception ex)
+				{
+					doFillTextFieldsPassport();
+					// btnCreditCardCancelEdit.fire();
+					throw ex;
+				}
+				currentPass.setAdditionalInformation(tmp.getAdditionalInformation());
+				currentPass.setAuthority(tmp.getAuthority());
+				currentPass.setDateOfBirth(tmp.getDateOfBirth());
+				currentPass.setDateOfIssue(tmp.getDateOfIssue());
+				currentPass.setExirationDate(tmp.getExirationDate());
+				currentPass.setGivenNames(tmp.getGivenNames());
+				currentPass.setNationality(tmp.getNationality());
+				currentPass.setNumber(tmp.getNumber());
+				currentPass.setPlaceOfBirth(tmp.getPlaceOfBirth());
+				currentPass.setSex(tmp.getSex());
+				currentPass.setSurName(tmp.getSurName());
+
+				db.updatePassport(currentPass);
+				doFillTextFieldsPassport();
+				doSetTextFieldsPassportEditable(false);
+				panePassportEditDelete.setVisible(true);
+				panePassportSaveCancelEdit.setVisible(false);
+				imgPassportThumbnail.setImage(currentPass.getThumbnail());
+				panePassportsList.setDisable(false); 
+				listViewPassport.refresh();
+				
+			} else if (event.getSource().equals(btnPassportShowHideNumber)) // on show/hide numner passport
+			{
+				if (txtPassportNumber.isVisible())
+				{
+					String pwd = txtPassportNumber.getText();
+					pwdPassportNumber.setVisible(true);
+					txtPassportNumber.setVisible(false);
+					pwdPassportNumber.setText(pwd);
+					imgPassportShowHideNumber.setImage(SwingFXUtils.toFXImage(
+							ImageIO.read(getClass().getResourceAsStream("/pkgMain/ressources/images/eye-solid.png")),
+							null));
+				} else
+				{
+					String pwd = pwdPassportNumber.getText();
+					pwdPassportNumber.setVisible(false);
+					txtPassportNumber.setVisible(true);
+					txtPassportNumber.setText(pwd);
+					imgPassportShowHideNumber.setImage(SwingFXUtils.toFXImage(
+							ImageIO.read(
+									getClass().getResourceAsStream("/pkgMain/ressources/images/eye-slash-solid.png")),
+							null));
+				}
+			}
+
+			// COPY THINGS DOWN HERE
+			else if (event.getSource().equals(btnPassportCopyAdditionalInformation))
+			{
+				SystemClipboard.copy(txtPassportAdditionalInformation.getText());
+			} else if (event.getSource().equals(btnPassportCopyAuthority))
+			{
+				SystemClipboard.copy(txtPassportAuthority.getText());
+			} else if (event.getSource().equals(btnPassportCopyDateOfBirth))
+			{
+				SystemClipboard.copy(txtPassportDateOfBirth.getText());
+			} else if (event.getSource().equals(btnPassportCopyDateOfIssue))
+			{
+				SystemClipboard.copy(txtPassportDateOfIssue.getText());
+			} else if (event.getSource().equals(btnPassportCopyExpirationDate))
+			{
+				SystemClipboard.copy(txtPassportExpirationDate.getText());
+			} else if (event.getSource().equals(btnPassportCopyGivenNames))
+			{
+				SystemClipboard.copy(txtPassportGivenNames.getText());
+			} else if (event.getSource().equals(btnPassportCopyNationality))
+			{
+				SystemClipboard.copy(txtPassportNationality.getText());
+			} else if (event.getSource().equals(btnPassportCopyNumber))
+			{
+				if (txtPassportNumber.isVisible())
+					SystemClipboard.copy(txtPassportNumber.getText());
+				else
+					SystemClipboard.copy(pwdPassportNumber.getText());
+			} else if (event.getSource().equals(btnPassportCopySex))
+			{
+				SystemClipboard.copy(cmbxPassportSex.getValue().toString());
+			} else if (event.getSource().equals(btnPassportCopySurname))
+			{
+				SystemClipboard.copy(txtPassportSurname.getText());
+			}
+			else if(event.getSource().equals(btnPassportCopyPlaceOfBirth)) {
+				SystemClipboard.copy(txtPassportPlaceOfBirth.getText());
+			}
+		} catch (Exception e)
+		{
+			ExceptionHandler.hanldeUnexpectedException(e);
+		}
+
 	}
 
 	@FXML
 	void onSelectListViewPassport(MouseEvent event)
 	{
-		//TODO
+		if (event.getSource().equals(listViewPassport))
+		{
+			if (listViewPassport.getSelectionModel().getSelectedItem() != null)
+			{
+				panePassportDetails.setVisible(true);
+				currentPass = listViewPassport.getSelectionModel().getSelectedItem();
+				doFillTextFieldsPassport();
+			}
+		}
 	}
 
 	// ============================================================
@@ -961,7 +1201,7 @@ public class Controller_PasswordManager
 
 	private boolean doShowDeleteDialogCreditCard()
 	{
-		Alert alert = new Alert(AlertType.CONFIRMATION, "Delete Credit Card" + currentCard.getCardName() + " ?",
+		Alert alert = new Alert(AlertType.CONFIRMATION, "Delete Credit Card " + currentCard.getCardName() + " ?",
 				ButtonType.YES, ButtonType.NO, ButtonType.CANCEL);
 		alert.showAndWait();
 		return alert.getResult() == ButtonType.YES;
@@ -984,5 +1224,68 @@ public class Controller_PasswordManager
 		}
 		currentCard = null;
 		paneCreditCardDetails.setVisible(false);
+	}
+
+	// -------------------------------------------------------------
+	// ------------------- Passport things -------------------------
+	// -------------------------------------------------------------
+
+	private void doFillTextFieldsPassport()
+	{
+		txtPassportAdditionalInformation.setText(currentPass.getAdditionalInformation());
+		txtPassportAuthority.setText(currentPass.getAuthority());
+		txtPassportDateOfBirth.setText(currentPass.getDateOfBirthAsString());
+		txtPassportDateOfIssue.setText(currentPass.getDateOfIssueAsString());
+		txtPassportExpirationDate.setText(currentPass.getExirationDateAsString());
+		txtPassportGivenNames.setText(currentPass.getGivenNames());
+		txtPassportNationality.setText(currentPass.getNationality());
+		txtPassportNumber.setText(currentPass.getNumber());
+		txtPassportPlaceOfBirth.setText(currentPass.getPlaceOfBirth());
+		txtPassportSurname.setText(currentPass.getSurName());
+		pwdPassportNumber.setText(currentPass.getNumber());
+		cmbxPassportSex.setValue(currentPass.getSex());
+	}
+
+	private void doSetTextFieldsPassportEditable(boolean state)
+	{
+		txtPassportAdditionalInformation.setEditable(state);
+		txtPassportAuthority.setEditable(state);
+		txtPassportDateOfBirth.setEditable(state);
+		txtPassportDateOfIssue.setEditable(state);
+		txtPassportExpirationDate.setEditable(state);
+		txtPassportGivenNames.setEditable(state);
+		txtPassportNationality.setEditable(state);
+		txtPassportNumber.setEditable(state);
+		txtPassportSurname.setEditable(state);
+		txtPassportPlaceOfBirth.setEditable(state);
+		pwdPassportNumber.setEditable(state);
+		cmbxPassportSex.setDisable(!state);
+	}
+
+	private boolean doShowDeleteDialogPassport()
+	{
+		Alert alert = new Alert(AlertType.CONFIRMATION, "Delete Passport of " + currentPass.getGivenNames() + " ?",
+				ButtonType.YES, ButtonType.NO, ButtonType.CANCEL);
+		alert.showAndWait();
+		return alert.getResult() == ButtonType.YES;
+
+	}
+
+	private void doDeletePassport()
+	{
+		int pos = listPassports.indexOf(currentPass);
+		db.deltePassport(currentPass);
+		listPassports.remove(currentPass);
+		if (pos > 0)
+		{
+			currentPass = listPassports.get(pos - 1);
+			doFillTextFieldsPassport();
+		} else if (pos == 0 && listPassports.size() > 0)
+		{
+			currentPass = listPassports.get(pos);
+			doFillTextFieldsPassport();
+		}
+		currentPass = null;
+		panePassportDetails.setVisible(false);
 	}
 }

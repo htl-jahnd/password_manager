@@ -51,7 +51,7 @@ public class CreditCard extends Card
 		if (cardNumber.trim().isEmpty())
 			throw new InvalidCardException("Credit Card number must not be empty");
 //		else if (!validateCreditCardNumber(cardNumber))
-//			throw new InvalidCardException("Credit card number is not valid");
+//			throw new InvalidCardException("Credit card number is not valid"); //TODO comment in
 		this.cardNumber = cardNumber;
 	}
 

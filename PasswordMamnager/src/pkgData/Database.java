@@ -96,6 +96,28 @@ public class Database
 	}
 
 	// ------------------------------------------------------------
+	// ----------------- PASSPORT OPERATIONS ----------------------
+	// ------------------------------------------------------------
+
+	public void addPassport(Passport currentPass)
+	{
+		// TODO @rabitsch
+
+	}
+	
+	public void deltePassport(Passport currentPass)
+	{
+		// TODO @rabitsch
+
+	}
+
+	public void updatePassport(Passport currentPass)
+	{
+		// TODO @rabitsch
+
+	}
+	
+	// ------------------------------------------------------------
 	// ------------------- USER OPERATIONS ------------------------
 	// ------------------------------------------------------------
 
@@ -137,9 +159,10 @@ public class Database
 		}
 		StringBuilder bu = new StringBuilder("jdbc:oracle:thin:@").append(connectionString).append(":1521:ora11g");
 		connectionString = bu.toString();
-//		DriverManager.setLoginTimeout(3);
-//		conn = DriverManager.getConnection(connectionString, DB_USER, DB_PWD); // Connects with database user "d4b12"
-//		conn.setAutoCommit(true);
+		// DriverManager.setLoginTimeout(3);
+		// conn = DriverManager.getConnection(connectionString, DB_USER, DB_PWD); //
+		// Connects with database user "d4b12"
+		// conn.setAutoCommit(true);
 		isConnectionSet = true;
 
 	}
@@ -194,7 +217,7 @@ public class Database
 		String hashed = PasswordUtils.getSHA512Hash(new String(pwd), salt);
 		// TODO check if user and pwd exist
 		// then
-		usr.setPwd(hashed);
+		usr.setPassword(hashed);
 		usr.setSalt(salt);
 		currentUser = usr;
 	}
@@ -208,7 +231,7 @@ public class Database
 		// TODO insert in db
 		// then
 		currentUser = new User(user.getUsername());
-		currentUser.setPwd(hashedPassword);
+		currentUser.setPassword(hashedPassword);
 		currentUser.setSalt(salt);
 
 	}

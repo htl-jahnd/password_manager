@@ -22,12 +22,12 @@ public class User
 		this.username = username;
 	}
 
-	public String getPwd()
+	public String getPassword()
 	{
 		return pwd;
 	}
 
-	public void setPwd(String pwd)
+	public void setPassword(String pwd)
 	{
 		this.pwd = pwd;
 	}
