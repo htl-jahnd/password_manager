@@ -15,6 +15,7 @@ import javafx.embed.swing.SwingFXUtils;
 import javafx.scene.image.Image;
 import net.sf.image4j.codec.ico.ICODecoder;
 import pkgExceptions.InvalidWebAccountException;
+import pkgMisc.AddressFormatValidator;
 
 /**
  * @author david.jahn
@@ -55,6 +56,11 @@ public class WebAccount
 		this(name, websiteName, websiteURL, username, password, additionalInformation, null);
 	}
 
+	public WebAccount() throws MalformedURLException, IOException, URISyntaxException, InvalidWebAccountException {
+		this("Name", "example.com", "https://example.com/", "max.mustermann", "1234",
+						"Info for example.com.");
+	}
+	
 	private void checkThumbnailDownload() throws IOException //TODO doesnt work everytime
 	{
 		try
@@ -151,6 +157,8 @@ public class WebAccount
 			throw new InvalidWebAccountException("Website URL must not be null");
 		else if(websiteURL.trim().isEmpty())
 			throw new InvalidWebAccountException("Website URL must not be empty");
+		else if(!AddressFormatValidator.isValidUrl(websiteURL))
+			throw new InvalidWebAccountException("Invalid website URL");
 		this.websiteURL = websiteURL;
 		checkThumbnailDownload(); 
 	}

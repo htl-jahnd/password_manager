@@ -2,6 +2,7 @@ package pkgData;
 
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.time.LocalDate;
 import java.time.YearMonth;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
@@ -39,6 +40,12 @@ public class CreditCard extends Card
 	{
 		this(cardName, cardNumber, cardOwner, validationDate, provider, additionalInformation, bankName, securityCode,
 				null);
+	}
+	
+	public CreditCard() throws IOException, InvalidCardException {
+		this("Name", "0000 1111 2222 3333 4444", "Card Owner",
+						YearMonth.of(LocalDate.now().plusYears(5).getYear(), LocalDate.now().getMonth()), ECreditCardsProviders.Other,
+						"Additional Information", "Example Bank", Integer.valueOf(123));
 	}
 
 	public String getCardNumber()

@@ -627,8 +627,7 @@ public class Controller_PasswordManager
 		{
 			if (event.getSource().equals(btnWebAccountAdd)) // on add account
 			{
-				WebAccount tmp = new WebAccount("Name", "example.com", "http://example.com/", "max.mustermann", "1234",
-						"Info for example.com.");
+				WebAccount tmp = new WebAccount();
 				listWebAccounts.add(tmp);
 				currentAccount = tmp;
 				listViewWebAccount.getSelectionModel().select(listWebAccounts.indexOf(currentAccount));
@@ -758,10 +757,7 @@ public class Controller_PasswordManager
 		{
 			if (event.getSource().equals(btnCreditCardAdd)) // on add card
 			{
-				Date now = new Date();
-				CreditCard tmp = new CreditCard("Name", "0000 1111 2222 3333 4444", "Card Owner",
-						YearMonth.of(now.getYear(), now.getMonth()), ECreditCardsProviders.Other,
-						"Additional Information", "Example Bank", Integer.valueOf(123));
+				CreditCard tmp = new CreditCard();
 				listCreditCards.add(tmp);
 				currentCard = tmp;
 				listViewCreditCard.getSelectionModel().select(listCreditCards.indexOf(currentCard));
@@ -941,14 +937,7 @@ public class Controller_PasswordManager
 		{
 			if (event.getSource().equals(btnPassportAdd)) // on add passport
 			{
-				Date now = new Date();
-				// Passport tmp = new Passport("Name", "0000 1111 2222 3333 4444", "Card Owner",
-				// YearMonth.of(now.getYear(), now.getMonth()), ECreditCardsProviders.Other,
-				// "Additional Information", "Example Bank", Integer.valueOf(123));
-
-				Passport tmp = new Passport("John", "Doe", "World", DateUtils.getLocalDateOfString("01.01.1990"),
-						"Sample Town", DateUtils.getLocalDateOfDate(now), DateUtils.getLocalDateOfDate(now),
-						ESex.Male, "Goverment", "123456789", "Some additional Information");
+				Passport tmp = new Passport();
 				listPassports.add(tmp);
 				currentPass = tmp;
 				listViewPassport.getSelectionModel().select(listPassports.indexOf(currentPass));
