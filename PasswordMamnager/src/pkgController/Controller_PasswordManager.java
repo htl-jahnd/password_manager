@@ -742,7 +742,6 @@ public class Controller_PasswordManager
 				paneWebAccountDetails.setVisible(true);
 				currentAccount = listViewWebAccount.getSelectionModel().getSelectedItem();
 				doFillTextFieldsWebAccount();
-
 			}
 		}
 	}
@@ -809,7 +808,6 @@ public class Controller_PasswordManager
 				} catch (Exception ex)
 				{
 					doFillTextFieldsCreditCard();
-					// btnCreditCardCancelEdit.fire();
 					throw ex;
 				}
 				currentCard.setAdditionalInformation(tmp.getAdditionalInformation());
@@ -987,7 +985,6 @@ public class Controller_PasswordManager
 				} catch (Exception ex)
 				{
 					doFillTextFieldsPassport();
-					// btnCreditCardCancelEdit.fire();
 					throw ex;
 				}
 				currentPass.setAdditionalInformation(tmp.getAdditionalInformation());
