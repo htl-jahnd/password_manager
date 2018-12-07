@@ -17,15 +17,6 @@ public class Password_Manager_MainAppl extends Application
 
 	public static void main(String[] args) throws Exception
 	{
-		// String slt = new Base64().encodeToString(PasswordUtils.generateSalt(16));
-		// String pwd = PasswordUtils.getSHA512Hash("my Long UsersadlkfnasjfnPassword",
-		// slt);
-		// String s = PasswordUtils.encrypt("133", pwd);
-		// System.out.println(s +"\n"+s.length());
-		//// System.out.println(pwd);
-		// System.out.println(PasswordUtils.decrypt(s, pwd));
-		//// System.out.println(ICODecoder.read(new
-		// URL("http://www.twitter.com/favicon.ico").openStream()).get(1));
 		 launch(args);
 	}
 

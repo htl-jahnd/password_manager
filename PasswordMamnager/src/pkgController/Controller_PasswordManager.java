@@ -43,6 +43,8 @@ import pkgData.ECreditCardsProviders;
 import pkgData.ESex;
 import pkgData.Passport;
 import pkgData.WebAccount;
+import pkgExceptions.InvalidCardException;
+import pkgExceptions.InvalidWebAccountException;
 import pkgMisc.DateUtils;
 import pkgMisc.ExceptionHandler;
 import pkgMisc.SystemClipboard;
@@ -388,72 +390,17 @@ public class Controller_PasswordManager
 	@FXML
 	void initialize() throws Exception
 	{
-		db = Database.newInstance();
-
+		db = Database.newInstance(); //creating instance of db
+		//creating ad filling the list for the combobox of Sexes in passport
 		listSex = FXCollections.observableArrayList();
 		listSex.add(ESex.Female);
 		listSex.add(ESex.Male);
 		cmbxPassportSex.setItems(listSex);
-		cmbxPassportSex.setCellFactory(cmbx -> new ListCell<ESex>() { // TODO find new pictures for male & female
-			@Override
-			protected void updateItem(ESex item, boolean empty)
-			{
-				super.updateItem(item, empty);
 
-				if (empty)
-				{
-					setGraphic(null);
-				} else
-				{
-					// Create a HBox to hold our displayed value
-					HBox hBox = new HBox(2);
-					hBox.setAlignment(Pos.CENTER_LEFT);
-					ImageView iv = new ImageView();
-					try
-					{
-						iv.setImage(SwingFXUtils.toFXImage(ESex.getSexPicture(item), null));
-					} catch (IOException e)
-					{
-						ExceptionHandler.hanldeUnexpectedException(e);
-					}
-					iv.setFitHeight(25);
-					iv.setFitWidth(25);
-					// Add the values from our piece to the HBox
-					hBox.getChildren().addAll(iv, new Label("   " + ESex.getSexString(item)));
-					// Set the HBox as the display
-					setGraphic(hBox);
-				}
-			}
-		});
-
+		//creating list of passports
 		listPassports = FXCollections.observableArrayList();
 		listViewPassport.setItems(listPassports); 
-		listViewPassport.setCellFactory(listView -> new ListCell<Passport>() {
-			@Override
-			protected void updateItem(Passport pass, boolean empty)
-			{
-				super.updateItem(pass, empty);
 
-				if (empty)
-				{
-					setGraphic(null);
-				} else
-				{
-					// Create a HBox to hold our displayed value
-					HBox hBox = new HBox(2);
-					hBox.setAlignment(Pos.CENTER_LEFT);
-					ImageView iv = new ImageView(pass.getThumbnail());
-					iv.setFitHeight(25);
-					iv.setFitWidth(25);
-					// Add the values from our piece to the HBox
-					hBox.getChildren().addAll(iv, new Label("   " + pass.getGivenNames() + " "+pass.getSurName()));
-					// Set the HBox as the display
-					setGraphic(hBox);
-				}
-			}
-		});
-		
-		
 		listCreditCardProviders = FXCollections.observableArrayList();
 		listCreditCardProviders.add(ECreditCardsProviders.Visa);
 		listCreditCardProviders.add(ECreditCardsProviders.MasterCard);
@@ -461,107 +408,15 @@ public class Controller_PasswordManager
 		listCreditCardProviders.add(ECreditCardsProviders.DinersClub);
 		listCreditCardProviders.add(ECreditCardsProviders.Discover);
 		listCreditCardProviders.add(ECreditCardsProviders.Other);
-		cmbxCreditCardProvider.setItems(listCreditCardProviders);
-		cmbxCreditCardProvider.setCellFactory(cmbx -> new ListCell<ECreditCardsProviders>() {
-			@Override
-			protected void updateItem(ECreditCardsProviders item, boolean empty)
-			{
-				super.updateItem(item, empty);
-
-				if (empty)
-				{
-					setGraphic(null);
-				} else
-				{
-					// Create a HBox to hold our displayed value
-					HBox hBox = new HBox(2);
-					hBox.setAlignment(Pos.CENTER_LEFT);
-					ImageView iv = new ImageView();
-					try
-					{
-						iv.setImage(SwingFXUtils.toFXImage(ECreditCardsProviders.getProviderPicture(item), null));
-					} catch (IOException e)
-					{
-						ExceptionHandler.hanldeUnexpectedException(e);
-					}
-					iv.setFitHeight(25);
-					iv.setFitWidth(25);
-					// Add the values from our piece to the HBox
-					hBox.getChildren().addAll(iv, new Label("   " + ECreditCardsProviders.getProviderString(item)));
-					// Set the HBox as the display
-					setGraphic(hBox);
-				}
-			}
-		});
-
-		listCreditCards = FXCollections.observableArrayList();
-		listViewCreditCard.setItems(listCreditCards);
-		listViewCreditCard.setCellFactory(listView -> new ListCell<CreditCard>() {
-			@Override
-			protected void updateItem(CreditCard card, boolean empty)
-			{
-				super.updateItem(card, empty);
-
-				if (empty)
-				{
-					setGraphic(null);
-				} else
-				{
-					// Create a HBox to hold our displayed value
-					HBox hBox = new HBox(2);
-					hBox.setAlignment(Pos.CENTER_LEFT);
-					ImageView iv = new ImageView(card.getThumbnail());
-					iv.setFitHeight(25);
-					iv.setFitWidth(25);
-					// Add the values from our piece to the HBox
-					hBox.getChildren().addAll(iv, new Label("   " + card.getCardName()));
-					// Set the HBox as the display
-					setGraphic(hBox);
-				}
-			}
-		});
 
 		listWebAccounts = FXCollections.observableArrayList();
 		listViewWebAccount.setItems(listWebAccounts);
-		listViewWebAccount.setCellFactory(listView -> new ListCell<WebAccount>() {
-			@Override
-			protected void updateItem(WebAccount account, boolean empty)
-			{
-				super.updateItem(account, empty);
-
-				if (empty)
-				{
-					setGraphic(null);
-				} else
-				{
-					// Create a HBox to hold our displayed value
-					HBox hBox = new HBox(2);
-					hBox.setAlignment(Pos.CENTER_LEFT);
-					ImageView iv = new ImageView(account.getThumbnail());
-					iv.setFitHeight(25);
-					iv.setFitWidth(25);
-					// Add the values from our piece to the HBox
-					hBox.getChildren().addAll(iv, new Label("   " + account.getName()));
-					// Set the HBox as the display
-					setGraphic(hBox);
-				}
-			}
-		});
-
-		// TEST DATA
-		listWebAccounts.add(new WebAccount("test1", "google.com", "https://www.google.com/", "googleUser",
-				"googlePassword", "info for google"));
-		listWebAccounts.add(new WebAccount("test2", "facebook.com", "https://www.facebook.com/", "fbUser", "fbPassword",
-				"info for fb"));
-		listWebAccounts.add(new WebAccount("test3", "twitter.com", "https://www.twitter.com/", "tiwtterUser",
-				"twitterPassword", "info for twitter"));
-		listWebAccounts.add(new WebAccount("test4", "tumblr.com", "https://www.tumblr.com/", "tumblrUser",
-				"tumblrPassword", "info for tumblr"));
-		listWebAccounts.add(new WebAccount("Pronhub", "pornhub.com", "https://www.pornhub.com/", "pornhubUser",
-				"pornhubPassword", "info for pornhub"));
-
-		listCreditCards.add(new CreditCard("Test card 1", "1234 5678", "Owner No1", YearMonth.of(2020, 11),
-				ECreditCardsProviders.Visa, "Infooo", "Erste Bank", 123));
+		
+		listCreditCards = FXCollections.observableArrayList();
+		listViewCreditCard.setItems(listCreditCards);
+		
+		doSetListCellFactories();
+		doInsertTestData();
 	}
 
 	@FXML
@@ -980,8 +835,10 @@ public class Controller_PasswordManager
 							txtPassportNationality.getText(),
 							DateUtils.getLocalDateOfString(txtPassportDateOfBirth.getText()),
 							txtPassportPlaceOfBirth.getText(),
-							DateUtils.getLocalDateOfString(txtPassportDateOfIssue.getText()), DateUtils.getLocalDateOfString(txtPassportExpirationDate.getText()),cmbxPassportSex.getValue(),
-							txtPassportAuthority.getText(),nm,txtPassportAdditionalInformation.getText());
+							DateUtils.getLocalDateOfString(txtPassportDateOfIssue.getText()),
+							DateUtils.getLocalDateOfString(txtPassportExpirationDate.getText()),
+							cmbxPassportSex.getValue(), txtPassportAuthority.getText(), nm,
+							txtPassportAdditionalInformation.getText());
 				} catch (Exception ex)
 				{
 					doFillTextFieldsPassport();
@@ -1005,9 +862,9 @@ public class Controller_PasswordManager
 				panePassportEditDelete.setVisible(true);
 				panePassportSaveCancelEdit.setVisible(false);
 				imgPassportThumbnail.setImage(currentPass.getThumbnail());
-				panePassportsList.setDisable(false); 
+				panePassportsList.setDisable(false);
 				listViewPassport.refresh();
-				
+
 			} else if (event.getSource().equals(btnPassportShowHideNumber)) // on show/hide numner passport
 			{
 				if (txtPassportNumber.isVisible())
@@ -1066,8 +923,8 @@ public class Controller_PasswordManager
 			} else if (event.getSource().equals(btnPassportCopySurname))
 			{
 				SystemClipboard.copy(txtPassportSurname.getText());
-			}
-			else if(event.getSource().equals(btnPassportCopyPlaceOfBirth)) {
+			} else if (event.getSource().equals(btnPassportCopyPlaceOfBirth))
+			{
 				SystemClipboard.copy(txtPassportPlaceOfBirth.getText());
 			}
 		} catch (Exception e)
@@ -1097,6 +954,165 @@ public class Controller_PasswordManager
 	// ============================================================
 	// ============================================================
 
+	// -------------------------------------------------------------
+	// --------------- initialization things -----------------------
+	// -------------------------------------------------------------
+
+	private void doSetListCellFactories()
+	{
+		cmbxPassportSex.setCellFactory(cmbx -> new ListCell<ESex>() { // TODO find new pictures for male & female
+			@Override
+			protected void updateItem(ESex item, boolean empty)
+			{
+				super.updateItem(item, empty);
+
+				if (empty)
+				{
+					setGraphic(null);
+				} else
+				{
+					// Create a HBox to hold our displayed value
+					HBox hBox = new HBox(2);
+					hBox.setAlignment(Pos.CENTER_LEFT);
+					ImageView iv = new ImageView();
+					try
+					{
+						iv.setImage(SwingFXUtils.toFXImage(ESex.getSexPicture(item), null));
+					} catch (IOException e)
+					{
+						ExceptionHandler.hanldeUnexpectedException(e);
+					}
+					iv.setFitHeight(25);
+					iv.setFitWidth(25);
+					// Add the values from our piece to the HBox
+					hBox.getChildren().addAll(iv, new Label("   " + ESex.getSexString(item)));
+					// Set the HBox as the display
+					setGraphic(hBox);
+				}
+			}
+		});
+		listViewPassport.setCellFactory(listView -> new ListCell<Passport>() {
+			@Override
+			protected void updateItem(Passport pass, boolean empty)
+			{
+				super.updateItem(pass, empty);
+
+				if (empty)
+				{
+					setGraphic(null);
+				} else
+				{
+					// Create a HBox to hold our displayed value
+					HBox hBox = new HBox(2);
+					hBox.setAlignment(Pos.CENTER_LEFT);
+					ImageView iv = new ImageView(pass.getThumbnail());
+					iv.setFitHeight(25);
+					iv.setFitWidth(25);
+					// Add the values from our piece to the HBox
+					hBox.getChildren().addAll(iv, new Label("   " + pass.getGivenNames() + " " + pass.getSurName()));
+					// Set the HBox as the display
+					setGraphic(hBox);
+				}
+			}
+		});
+		cmbxCreditCardProvider.setCellFactory(cmbx -> new ListCell<ECreditCardsProviders>() {
+			@Override
+			protected void updateItem(ECreditCardsProviders item, boolean empty)
+			{
+				super.updateItem(item, empty);
+
+				if (empty)
+				{
+					setGraphic(null);
+				} else
+				{
+					// Create a HBox to hold our displayed value
+					HBox hBox = new HBox(2);
+					hBox.setAlignment(Pos.CENTER_LEFT);
+					ImageView iv = new ImageView();
+					try
+					{
+						iv.setImage(SwingFXUtils.toFXImage(ECreditCardsProviders.getProviderPicture(item), null));
+					} catch (IOException e)
+					{
+						ExceptionHandler.hanldeUnexpectedException(e);
+					}
+					iv.setFitHeight(25);
+					iv.setFitWidth(25);
+					// Add the values from our piece to the HBox
+					hBox.getChildren().addAll(iv, new Label("   " + ECreditCardsProviders.getProviderString(item)));
+					// Set the HBox as the display
+					setGraphic(hBox);
+				}
+			}
+		});
+		cmbxCreditCardProvider.setItems(listCreditCardProviders);
+
+		listViewCreditCard.setCellFactory(listView -> new ListCell<CreditCard>() {
+			@Override
+			protected void updateItem(CreditCard card, boolean empty)
+			{
+				super.updateItem(card, empty);
+
+				if (empty)
+				{
+					setGraphic(null);
+				} else
+				{
+					// Create a HBox to hold our displayed value
+					HBox hBox = new HBox(2);
+					hBox.setAlignment(Pos.CENTER_LEFT);
+					ImageView iv = new ImageView(card.getThumbnail());
+					iv.setFitHeight(25);
+					iv.setFitWidth(25);
+					// Add the values from our piece to the HBox
+					hBox.getChildren().addAll(iv, new Label("   " + card.getCardName()));
+					// Set the HBox as the display
+					setGraphic(hBox);
+				}
+			}
+		});
+		listViewWebAccount.setCellFactory(listView -> new ListCell<WebAccount>() {
+			@Override
+			protected void updateItem(WebAccount account, boolean empty)
+			{
+				super.updateItem(account, empty);
+
+				if (empty)
+				{
+					setGraphic(null);
+				} else
+				{
+					// Create a HBox to hold our displayed value
+					HBox hBox = new HBox(2);
+					hBox.setAlignment(Pos.CENTER_LEFT);
+					ImageView iv = new ImageView(account.getThumbnail());
+					iv.setFitHeight(25);
+					iv.setFitWidth(25);
+					// Add the values from our piece to the HBox
+					hBox.getChildren().addAll(iv, new Label("   " + account.getName()));
+					// Set the HBox as the display
+					setGraphic(hBox);
+				}
+			}
+		});
+	}
+
+	private void doInsertTestData() throws MalformedURLException, IOException, URISyntaxException, InvalidWebAccountException, InvalidCardException {
+		listWebAccounts.add(new WebAccount("test1", "google.com", "https://www.google.com/", "googleUser",
+				"googlePassword", "info for google"));
+		listWebAccounts.add(new WebAccount("test2", "facebook.com", "https://www.facebook.com/", "fbUser", "fbPassword",
+				"info for fb"));
+		listWebAccounts.add(new WebAccount("test3", "twitter.com", "https://www.twitter.com/", "tiwtterUser",
+				"twitterPassword", "info for twitter"));
+		listWebAccounts.add(new WebAccount("test4", "tumblr.com", "https://www.tumblr.com/", "tumblrUser",
+				"tumblrPassword", "info for tumblr"));
+		listWebAccounts.add(new WebAccount("Pronhub", "pornhub.com", "https://www.pornhub.com/", "pornhubUser",
+				"pornhubPassword", "info for pornhub"));
+
+		listCreditCards.add(new CreditCard("Test card 1", "1234 5678", "Owner No1", YearMonth.of(2020, 11),
+				ECreditCardsProviders.Visa, "Infooo", "Erste Bank", 123));
+	}
 	// -------------------------------------------------------------
 	// ----------------- web account things ------------------------
 	// -------------------------------------------------------------

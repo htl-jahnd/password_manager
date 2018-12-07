@@ -15,6 +15,7 @@ import pkgData.Database;
 import pkgData.User;
 import pkgExceptions.InvalidEmailAddressException;
 import pkgExceptions.InvalidPasswordException;
+import pkgExceptions.UserException;
 import pkgMisc.AddressFormatValidator;
 import pkgMisc.ExceptionHandler;
 import pkgMisc.SceneSwitcher;
@@ -82,6 +83,7 @@ public class Controller_SignIn
 				else {
 					db.createNewUser(new User(txtUsername.getText()),pwdPassword.getText().toCharArray());
 				}
+				SceneSwitcher.startPasswordManager((Stage)btnLogin.getScene().getWindow());
 			}
 		} catch (InvalidEmailAddressException iee)
 		{
@@ -89,7 +91,11 @@ public class Controller_SignIn
 		} catch (InvalidPasswordException ipe)
 		{
 			ExceptionHandler.hanldeExpectedException("Password error", ipe);
-		} catch (Exception ex)
+		}
+		catch(UserException use) {
+			ExceptionHandler.hanldeExpectedException("Invalid Username or Password", use);
+		}
+		catch (Exception ex)
 		{
 			ExceptionHandler.hanldeUnexpectedException(ex);
 		}
