@@ -1,12 +1,19 @@
 package pkgData;
 
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URISyntaxException;
 import java.security.NoSuchAlgorithmException;
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
 import org.apache.commons.codec.binary.Base64;
 
+import pkgExceptions.InvalidWebAccountException;
 import pkgExceptions.UserException;
 import pkgMisc.PasswordUtils;
 
@@ -29,15 +36,33 @@ public class Database
 	// ---------------------- ALL SELECTS -------------------------
 	// ------------------------------------------------------------
 
-	public void selectWebAccounts(User userToSelectFrom)
+	public void selectWebAccounts() throws SQLException, MalformedURLException, IOException, URISyntaxException, InvalidWebAccountException
 	{
-		// TODO @rabitsch
+		String stmtString = "SELECT name, websiteName, websiteURL, username, password, additionalInformation FROM webAccount WHERE programUser LIKE ?"; 
+		
+		PreparedStatement stmt = conn.prepareStatement(stmtString);
+		stmt.setString(1, currentUser.getUsername());
+		ResultSet rs = stmt.executeQuery();
+		
+		while(rs.next()) {
+			accounts.add(new WebAccount(rs.getString(1), rs.getString(2), rs.getString(3), rs.getString(4), rs.getString(5), rs.getString(6)));
+		}
 	}
 
-	public void selectCreditCards(User userToSelectFrom)
+	public void selectCreditCards(User userToSelectFrom) throws SQLException
 	{
-		// TODO @rabitsch
+		String stmtString = "SELECT cardName, cardNumber, ownerName, bankName, expireDate, provider, additionalInformation, securityCode FROM creditCard WHERE userName LIKE ?";
+		
+		PreparedStatement stmt = conn.prepareStatement(stmtString);
+		stmt.setString(1, currentUser.getUsername());
+		ResultSet rs = stmt.executeQuery();
+		
+		while(rs.next()) {
+			creditCards.add(new CreditCard(rs.getString(1), rs.getString(2), rs.getString(3), rs.getString(4), rs.getString(5), ECreditCardsProviders.getProvider(rs.getString(6)), rs.getString(7), rs.getInt(8)));
+		}
 	}
+		
+				
 
 	// ------------------------------------------------------------
 	// ---------------- WEB ACCOUNT OPERATIONS --------------------
