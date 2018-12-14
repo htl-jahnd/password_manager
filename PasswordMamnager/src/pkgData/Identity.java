@@ -2,7 +2,7 @@ package pkgData;
 
 import java.time.LocalDate;
 
-public class Identities
+public class Identity
 {
 	
 	private ESalutation salutation;
@@ -15,7 +15,7 @@ public class Identities
 	private LocalDate dateOfBirth;
 	private String country;
 
-	public Identities(ESalutation salutation, String firstName, String surName, String streetAddress,
+	public Identity(ESalutation salutation, String firstName, String surName, String streetAddress,
 			String cityAddress, int zipAddress, String stateAddress, LocalDate dateOfBirth, String country)
 	{
 		super();
