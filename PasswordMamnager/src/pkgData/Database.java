@@ -19,7 +19,8 @@ import pkgExceptions.UserException;
 import pkgMisc.DateUtils;
 import pkgMisc.PasswordUtils;
 
-public class Database {
+public class Database
+{
 	// "jdbc:oracle:thin:@192.168.128.152:1521:ora11g";
 	// "dbc:oracle:thin:@212.152.179.117:1521:ora11g";
 	private static Database instance = null;
@@ -37,7 +38,8 @@ public class Database {
 	// ------------------------------------------------------------
 
 	public void selectWebAccounts()
-			throws SQLException, MalformedURLException, IOException, URISyntaxException, InvalidWebAccountException {
+			throws SQLException, MalformedURLException, IOException, URISyntaxException, InvalidWebAccountException
+	{
 		String stmtString = "SELECT name, websiteName, websiteURL, username, password, additionalInformation FROM webAccount WHERE programUser LIKE ?";
 
 		PreparedStatement stmt = conn.prepareStatement(stmtString);
@@ -45,13 +47,15 @@ public class Database {
 		ResultSet rs = stmt.executeQuery();
 		accounts.clear();
 
-		while (rs.next()) {
+		while (rs.next())
+		{
 			accounts.add(new WebAccount(rs.getString(1), rs.getString(2), rs.getString(3), rs.getString(4),
 					rs.getString(5), rs.getString(6)));
 		}
 	}
 
-	public void selectCreditCards(User userToSelectFrom) throws SQLException, IOException, InvalidCardException {
+	public void selectCreditCards(User userToSelectFrom) throws SQLException, IOException, InvalidCardException
+	{
 		String stmtString = "SELECT cardName, cardNumber, ownerName, bankName, expireDate, provider, additionalInformation, securityCode FROM creditCard WHERE userName LIKE ?";
 
 		PreparedStatement stmt = conn.prepareStatement(stmtString);
@@ -59,7 +63,8 @@ public class Database {
 		ResultSet rs = stmt.executeQuery();
 		creditCards.clear();
 
-		while (rs.next()) {
+		while (rs.next())
+		{
 			creditCards.add(new CreditCard(rs.getString(1), rs.getString(2), rs.getString(3),
 					DateUtils.getYearMonthOfString(rs.getString(5)), ECreditCardsProviders.getProvider(rs.getString(6)),
 					rs.getString(7), rs.getString(4), rs.getInt(8)));
@@ -70,7 +75,8 @@ public class Database {
 	// ---------------- WEB ACCOUNT OPERATIONS --------------------
 	// ------------------------------------------------------------
 
-	public void addWebAccount(WebAccount accountToAdd) throws SQLException {
+	public void addWebAccount(WebAccount accountToAdd) throws SQLException
+	{
 		String stmtString = "INSERT INTO webAccount VALUES(?,?,?,?,?,?,?)";
 
 		PreparedStatement stmt = conn.prepareStatement(stmtString);
@@ -84,7 +90,8 @@ public class Database {
 		stmt.executeUpdate();
 	}
 
-	public void deleteWebAccount(WebAccount accountToDelete) throws Exception {
+	public void deleteWebAccount(WebAccount accountToDelete) throws Exception
+	{
 		String stmtString = "DELETE FROM webAccount WHERE websiteName LIKE ? and username LIKE ?";
 
 		PreparedStatement stmt = conn.prepareStatement(stmtString);
@@ -93,13 +100,15 @@ public class Database {
 
 		int cnt = stmt.executeUpdate();
 
-		if (cnt < 1) {
+		if (cnt < 1)
+		{
 			throw new Exception("No such Account with username " + accountToDelete.getUsername() + " on website + "
 					+ accountToDelete.getWebsiteName());
 		}
 	}
 
-	public void updateWebAccount(WebAccount accountToUpdate) throws Exception {
+	public void updateWebAccount(WebAccount accountToUpdate) throws Exception
+	{
 		String stmtString = "UPDATE webAccount SET name = ?, websiteName = ?, websiteURL = ?, username = ?, password = ?, additionalInformation = ? WHERE programUser LIKE ?";
 
 		PreparedStatement stmt = conn.prepareStatement(stmtString);
@@ -113,7 +122,8 @@ public class Database {
 
 		int cnt = stmt.executeUpdate();
 
-		if (cnt < 1) {
+		if (cnt < 1)
+		{
 			throw new Exception("No such Account with username " + accountToUpdate.getUsername() + " to Update.");
 		}
 	}
@@ -122,7 +132,8 @@ public class Database {
 	// ---------------- CREDIT CARD OPERATIONS --------------------
 	// ------------------------------------------------------------
 
-	public void addCreditCard(CreditCard cardToAdd) throws SQLException {
+	public void addCreditCard(CreditCard cardToAdd) throws SQLException
+	{
 		String stmtString = "INSERT INTO creditCard VALUES(?,?,?,?,?,?,?,?,?)";
 
 		PreparedStatement stmt = conn.prepareStatement(stmtString);
@@ -138,7 +149,8 @@ public class Database {
 		stmt.executeUpdate();
 	}
 
-	public void delteCreditCard(CreditCard cardToDelete) throws Exception {
+	public void delteCreditCard(CreditCard cardToDelete) throws Exception
+	{
 		String stmtString = "DELETE FROM creditCard WHERE cardNumber LIKE ?";
 
 		PreparedStatement stmt = conn.prepareStatement(stmtString);
@@ -146,34 +158,38 @@ public class Database {
 
 		int cnt = stmt.executeUpdate();
 
-		if (cnt < 1) {
+		if (cnt < 1)
+		{
 			throw new Exception("No such CreditCard with cardNumber " + cardToDelete.getCardNumber() + " to Delete.");
 		}
 	}
 
-	/*public void updateCreditCard(CreditCard cardToUpdate) throws SQLException {
-		String stmtString = "UPDATE creditCard SET cardName = ?, cardNumber = ?, ownerName = ?, bankName = ?, expireDate = ?, provider = ?, additionalInformation = ?, securityCode = ? WHERE ";
-
-		PreparedStatement stmt = conn.prepareStatement(stmtString);
-		stmt.setString(1, cardToUpdate.getCardName());
-		stmt.setString(2, cardToUpdate.getCardNumber());
-		stmt.setString(3, cardToUpdate.getOwnerName());
-		stmt.setString(4, cardToUpdate.getBankName());
-		stmt.setString(5, cardToUpdate.getExpireDateAsString());
-		stmt.setString(6, ECreditCardsProviders.getProviderString(cardToUpdate.getProvider()));
-		stmt.setString(7, cardToUpdate.getAdditionalInformation());
-		stmt.setInt(8, cardToUpdate.getSecurityCode());
-		stmt.setString(9, cardToUpdate.getCardNumber());
-	}*/ //Funktioniert NOCH nicht, will Sequenz machen die ID vergibt, diese dann primary key machen.
-	
+	/*
+	 * public void updateCreditCard(CreditCard cardToUpdate) throws SQLException {
+	 * String stmtString =
+	 * "UPDATE creditCard SET cardName = ?, cardNumber = ?, ownerName = ?, bankName = ?, expireDate = ?, provider = ?, additionalInformation = ?, securityCode = ? WHERE "
+	 * ;
+	 * 
+	 * PreparedStatement stmt = conn.prepareStatement(stmtString); stmt.setString(1,
+	 * cardToUpdate.getCardName()); stmt.setString(2, cardToUpdate.getCardNumber());
+	 * stmt.setString(3, cardToUpdate.getOwnerName()); stmt.setString(4,
+	 * cardToUpdate.getBankName()); stmt.setString(5,
+	 * cardToUpdate.getExpireDateAsString()); stmt.setString(6,
+	 * ECreditCardsProviders.getProviderString(cardToUpdate.getProvider()));
+	 * stmt.setString(7, cardToUpdate.getAdditionalInformation()); stmt.setInt(8,
+	 * cardToUpdate.getSecurityCode()); stmt.setString(9,
+	 * cardToUpdate.getCardNumber()); }
+	 */ // Funktioniert NOCH nicht, will Sequenz machen die ID vergibt, diese dann
+		// primary key machen.
 
 	// ------------------------------------------------------------
 	// ----------------- PASSPORT OPERATIONS ----------------------
 	// ------------------------------------------------------------
 
-	public void addPassport(Passport currentPass) throws SQLException {
+	public void addPassport(Passport currentPass) throws SQLException
+	{
 		String stmtString = "INSERT INTO passport VALUES(?,?,?,?,?,?,?,?,?,?,?,?)";
-		
+
 		PreparedStatement stmt = conn.prepareStatement(stmtString);
 		stmt.setString(1, currentPass.getGivenNames());
 		stmt.setString(2, currentPass.getSurName());
@@ -187,57 +203,71 @@ public class Database {
 		stmt.setString(10, currentPass.getNumber());
 		stmt.setString(11, currentPass.getAdditionalInformation());
 		stmt.setString(12, currentUser.getUsername());
-		
+
 		stmt.executeUpdate();
 	}
 
-	public void deltePassport(Passport currentPass) throws Exception {
+	public void deltePassport(Passport currentPass) throws Exception
+	{
 		String stmtString = "DELETE FROM passport WHERE firstName LIKE ? AND surName LIKE ? AND dateOfIssue LIKE ?";
-		
+
 		PreparedStatement stmt = conn.prepareStatement(stmtString);
-		
+
 		stmt.setString(1, currentPass.getGivenNames());
 		stmt.setString(2, currentPass.getSurName());
 		stmt.setString(3, currentPass.getDateOfIssueAsString());
-		
+
 		int cnt = stmt.executeUpdate();
-		
-		if(cnt < 1) {
-			throw new Exception("no such passport with firstname " + currentPass.getGivenNames() + ", surName " +
-								currentPass.getSurName() + " and date of Issue " + currentPass.getDateOfIssueAsString() + " found.");
+
+		if (cnt < 1)
+		{
+			throw new Exception("no such passport with firstname " + currentPass.getGivenNames() + ", surName "
+					+ currentPass.getSurName() + " and date of Issue " + currentPass.getDateOfIssueAsString()
+					+ " found.");
 		}
 
 	}
 
-	/*public void updatePassport(Passport currentPass) {
-		String stmtString = "UPDATE passport SET firstName = ?, surName = ?, nationality = ?, dateOfBirth = ?, placeOfBirth = ?, dateOfIssue = ?, expirationDate = ?, sex = ?, authority = ?, passportNumber = ?, additionalInformation = ?"
-
-	}*/ 
-	//Funktioniert ebenfalls noch nicht
+	/*
+	 * public void updatePassport(Passport currentPass) { String stmtString =
+	 * "UPDATE passport SET firstName = ?, surName = ?, nationality = ?, dateOfBirth = ?, placeOfBirth = ?, dateOfIssue = ?, expirationDate = ?, sex = ?, authority = ?, passportNumber = ?, additionalInformation = ?"
+	 * 
+	 * }
+	 */
+	// Funktioniert ebenfalls noch nicht
 
 	// ------------------------------------------------------------
 	// ------------------- USER OPERATIONS ------------------------
 	// ------------------------------------------------------------
 
-	public void addUser(User userToAdd, char[] password) throws NoSuchAlgorithmException {
-		//String hashedPwd = hash(new String(password));
-		
+	public void addUser(User userToAdd, char[] password) throws NoSuchAlgorithmException
+	{
+		String salt = PasswordUtils.generateSaltAsString(PasswordUtils.SALT_LENGTH);
+		String hashedPwd = PasswordUtils.getSHA512Hash(new String(password), salt);
+		// TODO insert into db
+
+		currentUser = userToAdd;
 	}
 
-	public void checkUserCredentials(User userToCheck, char[] password) throws NoSuchAlgorithmException {
+	public void checkUserCredentials(User userToCheck, char[] password) throws NoSuchAlgorithmException
+	{
 
+		// TODO check if user & password exist
 		// TODO select users salt
 
-		// String hashedPwd = hash(new String(password));
-		// TODO check if user & password exist
+		String salt = PasswordUtils.generateSaltAsString(PasswordUtils.SALT_LENGTH);
+		String hashedPwd = PasswordUtils.getSHA512Hash(new String(password), salt);
+		// TODO check if pwd is correct
 	}
 
 	// ------------------------------------------------------------
 	// ----------------------- MISC THINGS ------------------------
 	// ------------------------------------------------------------
 
-	public static Database newInstance() throws Exception {
-		if (instance == null) {
+	public static Database newInstance() throws Exception
+	{
+		if (instance == null)
+		{
 			instance = new Database();
 			createConnection();
 			// TODO initialize all arraylists
@@ -245,8 +275,10 @@ public class Database {
 		return instance;
 	}
 
-	private static void createConnection() throws Exception {
-		if (conn == null) {
+	private static void createConnection() throws Exception
+	{
+		if (conn == null)
+		{
 			DriverManager.registerDriver(new oracle.jdbc.driver.OracleDriver());
 		}
 		StringBuilder bu = new StringBuilder("jdbc:oracle:thin:@").append(connectionString).append(":1521:ora11g");
@@ -259,49 +291,57 @@ public class Database {
 
 	}
 
-	private Database() {
+	private Database()
+	{
 	}
 
 	// ------------------------------------------------------------
 	// -------------------- GETTER AND SETTER ---------------------
 	// ------------------------------------------------------------
 
-	public static ArrayList<WebAccount> getListAccounts() {
+	public static ArrayList<WebAccount> getListAccounts()
+	{
 		return accounts;
 	}
 
-	public static ArrayList<CreditCard> getListCreditcards() {
+	public static ArrayList<CreditCard> getListCreditcards()
+	{
 		return creditCards;
 	}
 
-	public static Collection<WebAccount> getAccounts() {
+	public static Collection<WebAccount> getAccounts()
+	{
 		return accounts;
 	}
 
-	public static Collection<CreditCard> getCreditCards() {
+	public static Collection<CreditCard> getCreditCards()
+	{
 		return creditCards;
 	}
 
-	public static boolean isConnectionSet() {
+	public static boolean isConnectionSet()
+	{
 		return isConnectionSet;
 	}
 
-	public void login(User usr, char[] pwd) throws NoSuchAlgorithmException {
+	public void login(User usr, char[] pwd) throws NoSuchAlgorithmException
+	{
 		// TODO check if user exists -> if no throw new exception
 		// TODO select salt from db
 		String salt = "123"; // TODO JUST FOR TESTING, ELSE SALT = NULL!!!!
 		String hashed = PasswordUtils.getSHA512Hash(new String(pwd), salt);
 		// TODO check if user and pwd exist, throw an UserException if not --> look
 		// below
-//		throw new UserException("Invalid username or password");
+		// throw new UserException("Invalid username or password");
 		usr.setPassword(hashed);
 		usr.setSalt(salt);
 		currentUser = usr;
 	}
 
-	public void createNewUser(User user, char[] pwd) throws NoSuchAlgorithmException {
+	public void createNewUser(User user, char[] pwd) throws NoSuchAlgorithmException
+	{
 		// TODO check if user exists -> if yes throw new UserException --> look below
-//		throw new UserException("Username is already used");
+		// throw new UserException("Username is already used");
 		String salt = new Base64().encodeToString(PasswordUtils.generateSalt(PasswordUtils.SALT_LENGTH));
 		String hashedPassword = PasswordUtils.getSHA512Hash(new String(pwd), salt);
 

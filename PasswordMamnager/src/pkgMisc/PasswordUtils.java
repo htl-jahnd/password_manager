@@ -38,6 +38,14 @@ public class PasswordUtils
 		random.nextBytes(bytes);
 		return bytes;
 	}
+	
+	public static String generateSaltAsString(int length) {
+		SecureRandom random = new SecureRandom();
+		byte bytes[] = new byte[length];
+		random.nextBytes(bytes);
+		String salt = new Base64().encodeToString(bytes);
+		return salt;
+	}
 
 	public static String encrypt(String str, String password)
 			throws NoSuchAlgorithmException, NoSuchPaddingException, IOException, IllegalBlockSizeException,
