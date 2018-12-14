@@ -5,18 +5,19 @@ import java.time.LocalDate;
 public class Identity
 {
 	
-	private ESalutation salutation;
+	private ESalutation salutation; 
 	private String firstName;
 	private String surName;
 	private String streetAddress;
 	private String cityAddress;
 	private int zipAddress;
 	private String stateAddress;
-	private LocalDate dateOfBirth;
+	private LocalDate dateOfBirth; 
 	private String country;
+	private String additionalInformation;
 
 	public Identity(ESalutation salutation, String firstName, String surName, String streetAddress,
-			String cityAddress, int zipAddress, String stateAddress, LocalDate dateOfBirth, String country)
+			String cityAddress, int zipAddress, String stateAddress, LocalDate dateOfBirth, String country, String additionalInformation)
 	{
 		super();
 		this.salutation = salutation;
@@ -28,6 +29,7 @@ public class Identity
 		this.stateAddress = stateAddress;
 		this.dateOfBirth = dateOfBirth;
 		this.country = country;
+		this.additionalInformation = additionalInformation;
 	}
 
 
@@ -128,6 +130,18 @@ public class Identity
 	public void setCountry(String country)
 	{
 		this.country = country;
+	}
+
+
+	public String getAdditionalInformation()
+	{
+		return additionalInformation;
+	}
+
+
+	public void setAdditionalInformation(String additionalInformation)
+	{
+		this.additionalInformation = additionalInformation;
 	}
 
 }
