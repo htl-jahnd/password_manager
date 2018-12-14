@@ -19,7 +19,7 @@ import pkgExceptions.UserException;
 import pkgMisc.DateUtils;
 import pkgMisc.PasswordUtils;
 
-public class Database
+public class Database implements IDatabase_Controller
 {
 	// "jdbc:oracle:thin:@192.168.128.152:1521:ora11g";
 	// "dbc:oracle:thin:@212.152.179.117:1521:ora11g";
@@ -54,7 +54,7 @@ public class Database
 		}
 	}
 
-	public void selectCreditCards(User userToSelectFrom) throws SQLException, IOException, InvalidCardException
+	public void selectCreditCards() throws SQLException, IOException, InvalidCardException
 	{
 		String stmtString = "SELECT cardName, cardNumber, ownerName, bankName, expireDate, provider, additionalInformation, securityCode FROM creditCard WHERE userName LIKE ?";
 
@@ -124,7 +124,7 @@ public class Database
 
 		if (cnt < 1)
 		{
-			throw new Exception("No such Account with username " + accountToUpdate.getUsername() + " to Update.");
+			throw new Exception("No such Account with username " + accountToUpdate.getUsername() + " to update.");
 		}
 	}
 
@@ -160,7 +160,7 @@ public class Database
 
 		if (cnt < 1)
 		{
-			throw new Exception("No such CreditCard with cardNumber " + cardToDelete.getCardNumber() + " to Delete.");
+			throw new Exception("No such CreditCard with cardNumber " + cardToDelete.getCardNumber() + " to delete.");
 		}
 	}
 
@@ -221,7 +221,7 @@ public class Database
 
 		if (cnt < 1)
 		{
-			throw new Exception("no such passport with firstname " + currentPass.getGivenNames() + ", surName "
+			throw new Exception("No such passport with firstname " + currentPass.getGivenNames() + ", surName "
 					+ currentPass.getSurName() + " and date of Issue " + currentPass.getDateOfIssueAsString()
 					+ " found.");
 		}
@@ -351,6 +351,76 @@ public class Database
 		currentUser.setPassword(hashedPassword);
 		currentUser.setSalt(salt);
 
+	}
+
+	@Override
+	public void selectPassports()
+	{
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void selectIdentities()
+	{
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void updateCreditCard(CreditCard cardToUpdate) throws SQLException
+	{
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void updatePassport(Passport currentPass) throws SQLException
+	{
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void addNote(Note NoteToAdd) throws SQLException
+	{
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void deleteNote(Note noteToDelete) throws SQLException
+	{
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void updateNote(Note noteToDelete) throws SQLException
+	{
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void addIdentity(Identity idToAdd) throws SQLException
+	{
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void deleteIdentity(Identity idToDelte) throws SQLException
+	{
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void updateIdentity(Identity idToUpdate) throws SQLException
+	{
+		// TODO Auto-generated method stub
+		
 	}
 
 }
