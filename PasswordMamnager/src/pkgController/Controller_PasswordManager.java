@@ -31,6 +31,8 @@ import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
+import javafx.scene.control.ScrollPane;
+import javafx.scene.control.SplitPane;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
@@ -45,6 +47,7 @@ import pkgData.Passport;
 import pkgData.WebAccount;
 import pkgExceptions.InvalidCardException;
 import pkgExceptions.InvalidWebAccountException;
+import pkgMain.ressources.DashboardObject;
 import pkgMisc.DateUtils;
 import pkgMisc.ExceptionHandler;
 import pkgMisc.SystemClipboard;
@@ -364,6 +367,18 @@ public class Controller_PasswordManager
 	@FXML
 	private JFXTextField txtPassportPlaceOfBirth;
 
+	@FXML
+	private JFXButton btnDashboard;
+
+	@FXML
+	private SplitPane splitPaneListDetails;
+	
+    @FXML
+    private ScrollPane scrollPaneDashboard;
+
+    @FXML
+    private VBox vboxDashboardItems;
+
 	// ============================================================
 	// ============================================================
 	// =================== NO FXML VARIABLES ======================
@@ -390,16 +405,16 @@ public class Controller_PasswordManager
 	@FXML
 	void initialize() throws Exception
 	{
-		db = Database.newInstance(); //creating instance of db
-		//creating ad filling the list for the combobox of Sexes in passport
+		db = Database.newInstance(); // creating instance of db
+		// creating ad filling the list for the combobox of Sexes in passport
 		listSex = FXCollections.observableArrayList();
 		listSex.add(ESex.Female);
 		listSex.add(ESex.Male);
 		cmbxPassportSex.setItems(listSex);
 
-		//creating list of passports
+		// creating list of passports
 		listPassports = FXCollections.observableArrayList();
-		listViewPassport.setItems(listPassports); 
+		listViewPassport.setItems(listPassports);
 
 		listCreditCardProviders = FXCollections.observableArrayList();
 		listCreditCardProviders.add(ECreditCardsProviders.Visa);
@@ -411,10 +426,10 @@ public class Controller_PasswordManager
 
 		listWebAccounts = FXCollections.observableArrayList();
 		listViewWebAccount.setItems(listWebAccounts);
-		
+
 		listCreditCards = FXCollections.observableArrayList();
 		listViewCreditCard.setItems(listCreditCards);
-		
+
 		doSetListCellFactories();
 		doInsertTestData();
 	}
@@ -422,8 +437,21 @@ public class Controller_PasswordManager
 	@FXML
 	void onSelectButtonMenu(ActionEvent event)
 	{
-		if (event.getSource().equals(btnWebAccount))
+		if (event.getSource().equals(btnDashboard))
 		{
+			scrollPaneDashboard.setVisible(true);
+			splitPaneListDetails.setVisible(false);
+			panePassportDetails.setVisible(false);
+			panePassportsList.setVisible(false);
+			paneCreditCardDetails.setVisible(false);
+			paneCreditCardList.setVisible(false);
+			paneWebAccountDetails.setVisible(false);
+			paneWebAccountList.setVisible(false);
+			doFillDashboard();
+		} else if (event.getSource().equals(btnWebAccount))
+		{
+			scrollPaneDashboard.setVisible(false);
+			splitPaneListDetails.setVisible(true);
 			panePassportDetails.setVisible(false);
 			panePassportsList.setVisible(false);
 			paneCreditCardDetails.setVisible(false);
@@ -437,6 +465,8 @@ public class Controller_PasswordManager
 			// TODO do this for later things too
 		} else if (event.getSource().equals(btnCreditCard))
 		{
+			scrollPaneDashboard.setVisible(false);
+			splitPaneListDetails.setVisible(true);
 			paneCreditCardDetails.setVisible(true);
 			paneCreditCardList.setVisible(true);
 			paneWebAccountDetails.setVisible(false);
@@ -450,9 +480,13 @@ public class Controller_PasswordManager
 			// TODO do this for later things too
 		} else if (event.getSource().equals(btnIdentities))
 		{
+			splitPaneListDetails.setVisible(true);
+			scrollPaneDashboard.setVisible(false);
 			// TODO do this for later things too
 		} else if (event.getSource().equals(btnPassport))
 		{
+			scrollPaneDashboard.setVisible(false);
+			splitPaneListDetails.setVisible(true);
 			panePassportDetails.setVisible(true);
 			panePassportsList.setVisible(true);
 			paneCreditCardDetails.setVisible(false);
@@ -1098,7 +1132,9 @@ public class Controller_PasswordManager
 		});
 	}
 
-	private void doInsertTestData() throws MalformedURLException, IOException, URISyntaxException, InvalidWebAccountException, InvalidCardException {
+	private void doInsertTestData() throws MalformedURLException, IOException, URISyntaxException,
+			InvalidWebAccountException, InvalidCardException
+	{
 		listWebAccounts.add(new WebAccount("test1", "google.com", "https://www.google.com/", "googleUser",
 				"googlePassword", "info for google"));
 		listWebAccounts.add(new WebAccount("test2", "facebook.com", "https://www.facebook.com/", "fbUser", "fbPassword",
@@ -1289,5 +1325,46 @@ public class Controller_PasswordManager
 		}
 		currentPass = null;
 		panePassportDetails.setVisible(false);
+	}
+
+	// -------------------------------------------------------------
+	// ------------------- Dashboard things ------------------------
+	// -------------------------------------------------------------
+
+	private void doFillDashboard()
+	{
+		vboxDashboardItems.getChildren().clear();
+		final int separateAt = 5;
+		DashboardObject o;
+		int itemsUsed=0;
+		HBox box = new HBox(10);
+		
+		//FOR WEB ACCOUNTS
+		for(WebAccount w : listWebAccounts) {
+			
+			o= new DashboardObject(w,"Web Account", w.getName(), w.getUsername(), w.getThumbnail());
+			o.setVisible(true);
+			
+			box.getChildren().add(o);
+			if((itemsUsed %separateAt==0 && itemsUsed != 0) || itemsUsed == listWebAccounts.size()-1) {
+				vboxDashboardItems.getChildren().add(box);
+				box = new HBox();
+			}
+			itemsUsed++;
+		}
+		
+		//FOR CREDIT CARDS
+		itemsUsed=0;
+		box = new HBox(10);
+		
+		for(CreditCard c: listCreditCards) {
+			o= new DashboardObject(c, "Credit Card", c.getCardName(), c.getOwnerName(), c.getThumbnail());
+			box.getChildren().add(o);
+			if((itemsUsed %separateAt==0 && itemsUsed != 0) || itemsUsed == listCreditCards.size()-1) {
+				vboxDashboardItems.getChildren().add(box);
+				box = new HBox();
+			}
+			itemsUsed++;
+		}
 	}
 }

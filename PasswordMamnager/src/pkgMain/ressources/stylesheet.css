@@ -3,8 +3,29 @@
     -fx-background-insets: 0 0 -1 0, 0, 1, 2;
     -fx-background-radius: 3px, 3px, 2px, 1px;
     -fx-text-fill: -fx-text-base-color;
+    -fx-font-family: "Heiti TC";
+}
+
+.menuButton{
+	-fx-font-family: "Heiti TC";
+	 -fx-font-size:28px;
 }
 
 .root{
 	-fx-font-family: "Heiti TC";
+}
+
+.dashboardTile:hover{
+	-fx-font-family: "Heiti TC";
+	-fx-background-color: rgb(152,185,255);
+	-fx-background-radius: 3px, 3px, 2px, 1px;
+	 -fx-padding: 15px;
+    -fx-border-insets: 5px;
+    -fx-background-insets: 5px;
+}
+
+.dashboardTile{
+	 -fx-padding: 15px;
+    -fx-border-insets: 5px;
+    -fx-background-insets: 5px;
 }
