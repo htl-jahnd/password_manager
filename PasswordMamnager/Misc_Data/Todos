@@ -1,0 +1,3 @@
+TODOS
+1.	Make Database class to Listener
+2. 	Add polling methods do Database class, poll every 5 secs to momentan category
