@@ -1,6 +1,14 @@
 package pkgData;
 
+import java.awt.image.BufferedImage;
+import java.io.IOException;
 import java.time.LocalDate;
+
+import javax.imageio.ImageIO;
+
+import javafx.embed.swing.SwingFXUtils;
+import javafx.scene.image.Image;
+import pkgMisc.DateUtils;
 
 public class Identity
 {
@@ -10,14 +18,15 @@ public class Identity
 	private String surName;
 	private String streetAddress;
 	private String cityAddress;
-	private int zipAddress;
+	private String zipAddress;
 	private String stateAddress;
 	private LocalDate dateOfBirth; 
 	private String country;
 	private String additionalInformation;
+	private BufferedImage thumbnail;
 
 	public Identity(ESalutation salutation, String firstName, String surName, String streetAddress,
-			String cityAddress, int zipAddress, String stateAddress, LocalDate dateOfBirth, String country, String additionalInformation)
+			String cityAddress, String zipAddress, String stateAddress, LocalDate dateOfBirth, String country, String additionalInformation) throws IOException
 	{
 		super();
 		this.salutation = salutation;
@@ -30,6 +39,11 @@ public class Identity
 		this.dateOfBirth = dateOfBirth;
 		this.country = country;
 		this.additionalInformation = additionalInformation;
+		thumbnail= ImageIO.read(getClass().getResourceAsStream("/pkgMain/ressources/images/id-card-regular.png"));;
+	}
+	
+	public Identity() throws IOException {
+		this(ESalutation.Other, "James", "Bond", "Bakerstreet 221 B", "London", "WC2N 5DU", "England", DateUtils.getLocalDateOfString("11.11.1920"), "United Kingom"," 007");
 	}
 
 
@@ -92,12 +106,12 @@ public class Identity
 		this.cityAddress = cityAddress;
 	}
 
-	public int getZipAddress()
+	public String getZipAddress()
 	{
 		return zipAddress;
 	}
 
-	public void setZipAddress(int zipAddress)
+	public void setZipAddress(String zipAddress)
 	{
 		this.zipAddress = zipAddress;
 	}
@@ -144,4 +158,19 @@ public class Identity
 		this.additionalInformation = additionalInformation;
 	}
 
+
+	public String getDateOfBirthAsString()
+	{
+		return DateUtils.getStringOfLocalDate(dateOfBirth);
+	}
+	
+	public void setDateOfBirthOfString(String dateOfBirth) {
+		setDateOfBirth(DateUtils.getLocalDateOfString(dateOfBirth));
+	}
+
+	public Image getThumbnail()
+	{
+		return SwingFXUtils.toFXImage(thumbnail, null);
+	}
+	
 }

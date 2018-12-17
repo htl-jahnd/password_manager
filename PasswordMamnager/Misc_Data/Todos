@@ -1,3 +1,11 @@
 TODOS
+
+1.  add ids logic
+
+1.  add notes to ui
+
 1.	Make Database class to Listener
 2. 	Add polling methods do Database class, poll every 5 secs to momentan category
+
+1.  Add setting section
+2.  -Darkmode, safe in properties file

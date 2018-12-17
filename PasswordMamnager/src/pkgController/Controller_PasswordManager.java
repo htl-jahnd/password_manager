@@ -7,6 +7,7 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.sql.SQLException;
 import java.time.YearMonth;
 import java.time.ZoneId;
 import java.util.Date;
@@ -42,6 +43,7 @@ import javafx.scene.paint.Color;
 import pkgData.CreditCard;
 import pkgData.Database;
 import pkgData.ECreditCardsProviders;
+import pkgData.ESalutation;
 import pkgData.ESex;
 import pkgData.IDatabase_Controller;
 import pkgData.Identity;
@@ -375,12 +377,108 @@ public class Controller_PasswordManager
 
 	@FXML
 	private SplitPane splitPaneListDetails;
-	
-    @FXML
-    private ScrollPane scrollPaneDashboard;
 
-    @FXML
-    private VBox vboxDashboardItems;
+	@FXML
+	private ScrollPane scrollPaneDashboard;
+
+	@FXML
+	private VBox vboxDashboardItems;
+
+	@FXML
+	private VBox paneIdentityDetails;
+
+	@FXML
+	private Label lblIdentityName;
+
+	@FXML
+	private ImageView imgIdentityThumbnail;
+
+	@FXML
+	private HBox paneIdentityEditDelete;
+
+	@FXML
+	private JFXButton btnIdentityEdit;
+
+	@FXML
+	private JFXButton btnIdentityDelete;
+
+	@FXML
+	private JFXTextField txtIdentityStreetAddress;
+
+	@FXML
+	private JFXTextField txtIdentitySurname;
+
+	@FXML
+	private JFXTextArea txtIdentityAdditionalInformation;
+
+	@FXML
+	private JFXTextField txtIdentityName;
+
+	@FXML
+	private JFXButton btnIdentityCopyName;
+
+	@FXML
+	private JFXButton btnIdentityCopySurname;
+
+	@FXML
+	private JFXButton btnIdentityCopyStreetAddress;
+
+	@FXML
+	private JFXButton btnIdentityCopyCountry;
+
+	@FXML
+	private JFXButton btnIdentityCopyAdditionalInformation;
+
+	@FXML
+	private JFXButton btnIdentityCopyZipCode;
+
+	@FXML
+	private JFXTextField txtIdentityState;
+
+	@FXML
+	private JFXButton btnIdentityCopyState;
+
+	@FXML
+	private JFXTextField txtIdentityZipCode;
+
+	@FXML
+	private JFXTextField txtIdentityDateOfBirth;
+
+	@FXML
+	private JFXButton btnIdentityCopyDateOfBirth;
+
+	@FXML
+	private JFXTextField txtIdentityCountry;
+
+	@FXML
+	private JFXTextField txtIdentityCity;
+
+	@FXML
+	private JFXButton btnIdentityCopyCity;
+
+	@FXML
+	private JFXComboBox<ESalutation> cmbxIdentitySalutation;
+
+	@FXML
+	private JFXButton btnIdentityCopySalutation;
+
+	@FXML
+	private HBox paneIdentitySaveCancelEdit;
+
+	@FXML
+	private JFXButton btnIdentityCancelEdit;
+
+	@FXML
+	private JFXButton btnIdentitySaveEdit;
+
+	@FXML
+	private JFXListView<Identity> listViewIdentity;
+
+	@FXML
+	private VBox paneIdentityList;
+
+	@FXML
+	private JFXButton btnIdentityAdd;
 
 	// ============================================================
 	// ============================================================
@@ -393,11 +491,14 @@ public class Controller_PasswordManager
 	private ObservableList<CreditCard> listCreditCards;
 	private ObservableList<ESex> listSex;
 	private ObservableList<Passport> listPassports;
+	private ObservableList<Identity> listIdentities;
+	private ObservableList<ESalutation> listSalutations;
 
 	private Database db;
 	private WebAccount currentAccount = null;
 	private CreditCard currentCard = null;
 	private Passport currentPass = null;
+	private Identity currentId = null;
 
 	// ============================================================
 	// ============================================================
@@ -432,6 +533,12 @@ public class Controller_PasswordManager
 
 		listCreditCards = FXCollections.observableArrayList();
 		listViewCreditCard.setItems(listCreditCards);
+
+		listIdentities = FXCollections.observableArrayList();
+		listViewIdentity.setItems(listIdentities); // TODO set list cell factories
+
+		listSalutations = FXCollections.observableArrayList();
+		cmbxIdentitySalutation.setItems(listSalutations); // TODO set list cell factories
 
 		doSetListCellFactories();
 		doInsertTestData();
@@ -858,7 +965,8 @@ public class Controller_PasswordManager
 				panePassportEditDelete.setVisible(false);
 				panePassportsList.setDisable(true);
 			} else if (event.getSource().equals(btnPassportSaveEdit)) // on save after edit passport
-			{
+			{ 
+				
 				String nm;
 				if (txtPassportNumber.isVisible())
 					nm = txtPassportNumber.getText();
@@ -981,6 +1089,111 @@ public class Controller_PasswordManager
 				panePassportDetails.setVisible(true);
 				currentPass = listViewPassport.getSelectionModel().getSelectedItem();
 				doFillTextFieldsPassport();
+			}
+		}
+	}
+
+	// -------------------------------------------------------------
+	// ------------------- Identity things -------------------------
+	// -------------------------------------------------------------
+
+	// TODO
+
+	@FXML
+	void onSelectButtonIdentity(ActionEvent event)
+	{
+		try
+		{
+			if (event.getSource().equals(btnIdentityAdd))
+			{
+				Identity tmp = new Identity();
+				listIdentities.add(tmp);
+				currentId = tmp;
+				listViewIdentity.getSelectionModel().select(listIdentities.indexOf(currentId));
+				doFillTextFieldsIdentity();
+				paneIdentityEditDelete.setVisible(false);
+				paneIdentitySaveCancelEdit.setVisible(true);
+				doSetTextFieldsIdentityEditable(true);
+				db.addIdentity(currentId);
+				paneIdentityList.setDisable(true);
+				paneIdentityDetails.setVisible(true);
+			} else if (event.getSource().equals(btnIdentityCancelEdit))
+			{
+				doFillTextFieldsIdentity();
+				doSetTextFieldsIdentityEditable(false);
+				paneIdentitySaveCancelEdit.setVisible(false);
+				paneIdentityEditDelete.setVisible(true);
+				paneIdentityList.setDisable(false);
+			}
+
+			else if (event.getSource().equals(btnIdentityDelete))
+			{
+				if (doShowDeleteDialogIdentity())
+				{
+					doDeleteIdentity();
+				}
+			} else if (event.getSource().equals(btnIdentityEdit))
+			{
+				doSetTextFieldsIdentityEditable(true);
+				paneIdentitySaveCancelEdit.setVisible(true);
+				paneIdentityEditDelete.setVisible(false);
+				paneIdentityList.setDisable(true);
+			} else if (event.getSource().equals(btnIdentitySaveEdit))
+			{
+				// TODO
+			}
+			// COPY THINGS DOWN HERE
+			else if (event.getSource().equals(btnIdentityCopyAdditionalInformation))
+			{
+				// TODO
+			} else if (event.getSource().equals(btnIdentityCopyCity))
+			{
+				// TODO
+			} else if (event.getSource().equals(btnIdentityCopyCountry))
+			{
+				// TODO
+			}
+
+			else if (event.getSource().equals(btnIdentityCopyDateOfBirth))
+			{
+				// TODO
+			} else if (event.getSource().equals(btnIdentityCopyName))
+			{
+				// TODO
+			} else if (event.getSource().equals(btnIdentityCopySalutation))
+			{
+				// TODO
+			} else if (event.getSource().equals(btnIdentityCopyState))
+			{
+				// TODO
+			} else if (event.getSource().equals(btnIdentityCopyStreetAddress))
+			{
+				// TODO
+			} else if (event.getSource().equals(btnIdentityCopySurname))
+			{
+				// TODO
+			} else if (event.getSource().equals(btnIdentityCopyZipCode))
+			{
+				// TODO
+			}
+		} catch (Exception e)
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+	}
+
+	@FXML
+	void onSelectListViewIdentity(MouseEvent event)
+	{
+		if (event.getSource().equals(listViewIdentity))
+		{
+			if (listViewIdentity.getSelectionModel().getSelectedItem() != null)
+			{
+				paneIdentityDetails.setVisible(true);
+				currentId = listViewIdentity.getSelectionModel().getSelectedItem();
+				doFillTextFieldsIdentity();
 			}
 		}
 	}
@@ -1152,11 +1365,12 @@ public class Controller_PasswordManager
 		listCreditCards.add(new CreditCard("Test card 1", "1234 5678", "Owner No1", YearMonth.of(2020, 11),
 				ECreditCardsProviders.Visa, "Infooo", "Erste Bank", 123));
 	}
+
 	// -------------------------------------------------------------
 	// ----------------- web account things ------------------------
 	// -------------------------------------------------------------
 
-	private void doDeleteWebAccount()
+	private void doDeleteWebAccount() throws Exception
 	{
 		int pos = listWebAccounts.indexOf(currentAccount);
 		db.deleteWebAccount(currentAccount);
@@ -1249,7 +1463,7 @@ public class Controller_PasswordManager
 
 	}
 
-	private void doDeleteCreditCard()
+	private void doDeleteCreditCard() throws Exception
 	{
 		int pos = listCreditCards.indexOf(currentCard);
 		db.delteCreditCard(currentCard);
@@ -1312,7 +1526,7 @@ public class Controller_PasswordManager
 
 	}
 
-	private void doDeletePassport()
+	private void doDeletePassport() throws Exception
 	{
 		int pos = listPassports.indexOf(currentPass);
 		db.deltePassport(currentPass);
@@ -1331,6 +1545,65 @@ public class Controller_PasswordManager
 	}
 
 	// -------------------------------------------------------------
+	// ------------------- Identity things -------------------------
+	// -------------------------------------------------------------
+
+	private void doFillTextFieldsIdentity()
+	{
+		txtIdentityAdditionalInformation.setText(currentId.getAdditionalInformation());
+		txtIdentityCity.setText(currentId.getCityAddress());
+		txtIdentityCountry.setText(currentId.getCountry());
+		txtIdentityDateOfBirth.setText(currentId.getDateOfBirthAsString());
+		txtIdentityName.setText(currentId.getFirstName());
+		txtIdentityState.setText(currentId.getStateAddress());
+		txtIdentityStreetAddress.setText(currentId.getStreetAddress());
+		txtIdentitySurname.setText(currentId.getSurName());
+		txtIdentityZipCode.setText(String.valueOf(currentId.getZipAddress()));
+		imgIdentityThumbnail.setImage(currentId.getThumbnail());
+	}
+
+	private void doSetTextFieldsIdentityEditable(boolean state)
+	{
+		txtIdentityAdditionalInformation.setEditable(state);
+		txtIdentityCity.setEditable(state);
+		txtIdentityCountry.setEditable(state);
+		txtIdentityDateOfBirth.setEditable(state);
+		txtIdentityName.setEditable(state);
+		txtIdentityState.setEditable(state);
+		txtIdentityStreetAddress.setEditable(state);
+		txtIdentitySurname.setEditable(state);
+		txtIdentityZipCode.setEditable(state);
+		cmbxIdentitySalutation.setDisable(!state);
+	}
+
+	private void doDeleteIdentity() throws SQLException
+	{
+		int pos = listIdentities.indexOf(currentId);
+		db.deleteIdentity(currentId);
+		listIdentities.remove(currentId);
+		if (pos > 0)
+		{
+			currentId = listIdentities.get(pos - 1);
+			doFillTextFieldsIdentity();
+		} else if (pos == 0 && listIdentities.size() > 0)
+		{
+			currentId = listIdentities.get(pos);
+			doFillTextFieldsIdentity();
+		}
+		currentId = null;
+		paneIdentityDetails.setVisible(false);
+
+	}
+
+	private boolean doShowDeleteDialogIdentity()
+	{
+		Alert alert = new Alert(AlertType.CONFIRMATION, "Delete Passport of " + currentId.getFirstName() + " ?",
+				ButtonType.YES, ButtonType.NO, ButtonType.CANCEL);
+		alert.showAndWait();
+		return alert.getResult() == ButtonType.YES;
+	}
+
+	// -------------------------------------------------------------
 	// ------------------- Dashboard things ------------------------
 	// -------------------------------------------------------------
 
@@ -1339,31 +1612,35 @@ public class Controller_PasswordManager
 		vboxDashboardItems.getChildren().clear();
 		final int separateAt = 5;
 		DashboardObject o;
-		int itemsUsed=0;
+		int itemsUsed = 0;
 		HBox box = new HBox(10);
-		
-		//FOR WEB ACCOUNTS
-		for(WebAccount w : listWebAccounts) {
-			
-			o= new DashboardObject(w,"Web Account", w.getName(), w.getUsername(), w.getThumbnail());
+
+		// FOR WEB ACCOUNTS
+		for (WebAccount w : listWebAccounts)
+		{
+
+			o = new DashboardObject(w, "Web Account", w.getName(), w.getUsername(), w.getThumbnail());
 			o.setVisible(true);
-			
+
 			box.getChildren().add(o);
-			if((itemsUsed %separateAt==0 && itemsUsed != 0) || itemsUsed == listWebAccounts.size()-1) {
+			if ((itemsUsed % separateAt == 0 && itemsUsed != 0) || itemsUsed == listWebAccounts.size() - 1)
+			{
 				vboxDashboardItems.getChildren().add(box);
 				box = new HBox();
 			}
 			itemsUsed++;
 		}
-		
-		//FOR CREDIT CARDS
-		itemsUsed=0;
+
+		// FOR CREDIT CARDS
+		itemsUsed = 0;
 		box = new HBox(10);
-		
-		for(CreditCard c: listCreditCards) {
-			o= new DashboardObject(c, "Credit Card", c.getCardName(), c.getOwnerName(), c.getThumbnail());
+
+		for (CreditCard c : listCreditCards)
+		{
+			o = new DashboardObject(c, "Credit Card", c.getCardName(), c.getOwnerName(), c.getThumbnail());
 			box.getChildren().add(o);
-			if((itemsUsed %separateAt==0 && itemsUsed != 0) || itemsUsed == listCreditCards.size()-1) {
+			if ((itemsUsed % separateAt == 0 && itemsUsed != 0) || itemsUsed == listCreditCards.size() - 1)
+			{
 				vboxDashboardItems.getChildren().add(box);
 				box = new HBox();
 			}
