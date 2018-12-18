@@ -965,8 +965,8 @@ public class Controller_PasswordManager
 				panePassportEditDelete.setVisible(false);
 				panePassportsList.setDisable(true);
 			} else if (event.getSource().equals(btnPassportSaveEdit)) // on save after edit passport
-			{ 
-				
+			{
+
 				String nm;
 				if (txtPassportNumber.isVisible())
 					nm = txtPassportNumber.getText();
@@ -1140,41 +1140,71 @@ public class Controller_PasswordManager
 				paneIdentityList.setDisable(true);
 			} else if (event.getSource().equals(btnIdentitySaveEdit))
 			{
-				// TODO
+				Identity tmp;
+				try
+				{
+					tmp = new Identity(cmbxIdentitySalutation.getValue(), txtIdentityName.getText(),
+							txtIdentitySurname.getText(), txtIdentityStreetAddress.getText(), txtIdentityCity.getText(),
+							txtIdentityZipCode.getText(), txtIdentityState.getText(),
+							DateUtils.getLocalDateOfString(txtIdentityDateOfBirth.getText()),
+							txtIdentityCountry.getText(), txtIdentityAdditionalInformation.getText());
+				} catch (Exception ex)
+				{
+					doFillTextFieldsIdentity();
+					throw ex;
+				}
+				currentId.setAdditionalInformation(tmp.getAdditionalInformation());
+				currentId.setCityAddress(tmp.getCityAddress());
+				currentId.setCountry(tmp.getCountry());
+				currentId.setDateOfBirth(tmp.getDateOfBirth());
+				currentId.setFirstName(tmp.getFirstName());
+				currentId.setSalutation(tmp.getSalutation());
+				currentId.setStateAddress(tmp.getStateAddress());
+				currentId.setStreetAddress(tmp.getStreetAddress());
+				currentId.setSurName(tmp.getSurName());
+				currentId.setZipAddress(tmp.getZipAddress());
+
+				db.updateIdentity(currentId);
+				doFillTextFieldsIdentity();
+				doSetTextFieldsIdentityEditable(false);
+				paneIdentityEditDelete.setVisible(true);
+				paneIdentitySaveCancelEdit.setVisible(false);
+				imgIdentityThumbnail.setImage(currentId.getThumbnail());
+				paneIdentityList.setDisable(false);
+				listViewIdentity.refresh();
 			}
 			// COPY THINGS DOWN HERE
 			else if (event.getSource().equals(btnIdentityCopyAdditionalInformation))
 			{
-				// TODO
+				SystemClipboard.copy(txtIdentityAdditionalInformation.getText());
 			} else if (event.getSource().equals(btnIdentityCopyCity))
 			{
-				// TODO
+				SystemClipboard.copy(txtIdentityCity.getText());
 			} else if (event.getSource().equals(btnIdentityCopyCountry))
 			{
-				// TODO
+				SystemClipboard.copy(txtIdentityCountry.getText());
 			}
-
 			else if (event.getSource().equals(btnIdentityCopyDateOfBirth))
 			{
-				// TODO
+				SystemClipboard.copy(txtIdentityDateOfBirth.getText());
 			} else if (event.getSource().equals(btnIdentityCopyName))
 			{
-				// TODO
+				SystemClipboard.copy(txtIdentityName.getText());
 			} else if (event.getSource().equals(btnIdentityCopySalutation))
 			{
-				// TODO
+				SystemClipboard.copy( ESalutation.getSalutationString(cmbxIdentitySalutation.getValue()));
 			} else if (event.getSource().equals(btnIdentityCopyState))
 			{
-				// TODO
+				SystemClipboard.copy(txtIdentityState.getText());
 			} else if (event.getSource().equals(btnIdentityCopyStreetAddress))
 			{
-				// TODO
+				SystemClipboard.copy(txtIdentityStreetAddress.getText());
 			} else if (event.getSource().equals(btnIdentityCopySurname))
 			{
-				// TODO
+				SystemClipboard.copy(txtIdentitySurname.getText());
 			} else if (event.getSource().equals(btnIdentityCopyZipCode))
 			{
-				// TODO
+				SystemClipboard.copy(txtIdentityZipCode.getText());
 			}
 		} catch (Exception e)
 		{
