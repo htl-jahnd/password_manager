@@ -1,5 +1,10 @@
 package pkgData;
 
+import java.awt.image.BufferedImage;
+import java.io.IOException;
+
+import javax.imageio.ImageIO;
+
 public enum ESalutation
 {
 	Mister, Miss, Other;
@@ -25,6 +30,18 @@ public enum ESalutation
 				return Miss;
 			default:
 				return Other;
+		}
+	}
+	
+	public static BufferedImage getSalutationPicture(ESalutation sal) throws IOException {
+		if(sal.equals(Mister)) {
+			return ImageIO.read(ESalutation.class.getResourceAsStream("/pkgMain/ressources/images/mars-solid.png"));
+		}
+		else if(sal.equals(Miss)) {
+			return ImageIO.read(ESalutation.class.getResourceAsStream("/pkgMain/ressources/images/venus-solid.png"));
+		}
+		else {
+			return ImageIO.read(ESalutation.class.getResourceAsStream("/pkgMain/ressources/images/transgender-alt-solid.png"));
 		}
 	}
 }

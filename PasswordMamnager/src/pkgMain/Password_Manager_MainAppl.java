@@ -4,14 +4,7 @@ import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.Label;
-import javafx.scene.layout.AnchorPane;
-import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
-import pkgData.CreditCard;
-import pkgData.WebAccount;
-import pkgMain.ressources.DashboardObject;
-import pkgMisc.AddressFormatValidator;
 
 public class Password_Manager_MainAppl extends Application
 {

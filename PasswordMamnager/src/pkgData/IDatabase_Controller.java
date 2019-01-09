@@ -4,19 +4,23 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.sql.SQLException;
+import java.util.Collection;
 
 import pkgExceptions.InvalidWebAccountException;
 
 public interface IDatabase_Controller
 {
 	// Selects
-	public void selectWebAccounts() throws SQLException, MalformedURLException, IOException, URISyntaxException, InvalidWebAccountException;
+	public void selectWebAccounts()
+			throws SQLException, MalformedURLException, IOException, URISyntaxException, InvalidWebAccountException;
 
 	public void selectCreditCards() throws Exception;
 
 	public void selectPassports();
 
 	public void selectIdentities();
+
+	public void selectNotes();
 
 	// Web account
 	public void addWebAccount(WebAccount accountToAdd) throws SQLException;
@@ -28,7 +32,7 @@ public interface IDatabase_Controller
 	// Credit card
 	public void addCreditCard(CreditCard cardToAdd) throws SQLException;
 
-	public void delteCreditCard(CreditCard cardToDelete)throws SQLException, Exception;
+	public void delteCreditCard(CreditCard cardToDelete) throws SQLException, Exception;
 
 	public void updateCreditCard(CreditCard cardToUpdate) throws SQLException;
 
@@ -52,4 +56,16 @@ public interface IDatabase_Controller
 	public void deleteIdentity(Identity idToDelte) throws SQLException;
 
 	public void updateIdentity(Identity idToUpdate) throws SQLException;
+
+	// Gets
+
+	public Collection<CreditCard> getCreditCards();
+
+	public Collection<WebAccount> getAccounts();
+
+	public Collection<Passport> getPassports();
+
+	public Collection<Identity> getIdentities();
+
+	public Collection<Note> getNotes();
 }

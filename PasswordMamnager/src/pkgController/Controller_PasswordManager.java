@@ -1,18 +1,15 @@
 package pkgController;
 
 import java.awt.Desktop;
-import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.URL;
 import java.sql.SQLException;
 import java.time.YearMonth;
-import java.time.ZoneId;
-import java.util.Date;
-
 import javax.imageio.ImageIO;
+
+import org.controlsfx.control.MaskerPane;
 
 import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXComboBox;
@@ -32,27 +29,23 @@ import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
-import javafx.scene.control.ScrollPane;
 import javafx.scene.control.SplitPane;
-import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
-import javafx.scene.paint.Color;
 import pkgData.CreditCard;
 import pkgData.Database;
 import pkgData.ECreditCardsProviders;
 import pkgData.ESalutation;
 import pkgData.ESex;
-import pkgData.IDatabase_Controller;
 import pkgData.Identity;
 import pkgData.Note;
 import pkgData.Passport;
 import pkgData.WebAccount;
 import pkgExceptions.InvalidCardException;
 import pkgExceptions.InvalidWebAccountException;
-import pkgMain.ressources.DashboardObject;
 import pkgMisc.DateUtils;
 import pkgMisc.ExceptionHandler;
 import pkgMisc.SystemClipboard;
@@ -373,16 +366,7 @@ public class Controller_PasswordManager
 	private JFXTextField txtPassportPlaceOfBirth;
 
 	@FXML
-	private JFXButton btnDashboard;
-
-	@FXML
 	private SplitPane splitPaneListDetails;
-
-	@FXML
-	private ScrollPane scrollPaneDashboard;
-
-	@FXML
-	private VBox vboxDashboardItems;
 
 	@FXML
 	private VBox paneIdentityDetails;
@@ -480,6 +464,63 @@ public class Controller_PasswordManager
 	@FXML
 	private JFXButton btnIdentityAdd;
 
+	@FXML
+	private JFXButton btnNotes;
+
+	@FXML
+	private VBox paneNoteDetails;
+
+	@FXML
+	private Label lblNoteName;
+
+	@FXML
+	private ImageView imgNoteThumbnail;
+
+	@FXML
+	private HBox paneNoteEditDelete;
+
+	@FXML
+	private JFXButton btnNoteEdit;
+
+	@FXML
+	private JFXButton btnNoteDelete;
+
+	@FXML
+	private JFXTextArea txtNoteText;
+
+	@FXML
+	private JFXTextField txtNoteTitle;
+
+	@FXML
+	private JFXButton btnNoteCopyTitle;
+
+	@FXML
+	private JFXButton btnNoteCopyText;
+
+	@FXML
+	private HBox paneNoteSaveCancelEdit;
+
+	@FXML
+	private JFXButton btnNoteCancelEdit;
+
+	@FXML
+	private JFXButton btnNoteSaveEdit;
+
+	@FXML
+	private VBox paneNoteList;
+
+	@FXML
+	private JFXButton btnNoteAdd;
+
+	@FXML
+	private JFXListView<Note> listViewNote;
+
+	@FXML
+	private AnchorPane paneMaskerPane;
+
+	@FXML
+	private MaskerPane maskerPane;
+
 	// ============================================================
 	// ============================================================
 	// =================== NO FXML VARIABLES ======================
@@ -493,12 +534,14 @@ public class Controller_PasswordManager
 	private ObservableList<Passport> listPassports;
 	private ObservableList<Identity> listIdentities;
 	private ObservableList<ESalutation> listSalutations;
+	private ObservableList<Note> listNotes;
 
 	private Database db;
 	private WebAccount currentAccount = null;
 	private CreditCard currentCard = null;
 	private Passport currentPass = null;
 	private Identity currentId = null;
+	private Note currentNote = null;
 
 	// ============================================================
 	// ============================================================
@@ -535,32 +578,64 @@ public class Controller_PasswordManager
 		listViewCreditCard.setItems(listCreditCards);
 
 		listIdentities = FXCollections.observableArrayList();
-		listViewIdentity.setItems(listIdentities); // TODO set list cell factories
+		listViewIdentity.setItems(listIdentities);
 
 		listSalutations = FXCollections.observableArrayList();
-		cmbxIdentitySalutation.setItems(listSalutations); // TODO set list cell factories
+		cmbxIdentitySalutation.setItems(listSalutations);
+		listSalutations.add(ESalutation.Miss);
+		listSalutations.add(ESalutation.Mister);
+		listSalutations.add(ESalutation.Other);
+
+		listNotes = FXCollections.observableArrayList();
+		listViewNote.setItems(listNotes);
 
 		doSetListCellFactories();
 		doInsertTestData();
+
+		Thread selectThread = new Thread() {
+			public void run()
+			{
+				try
+				{
+					db.selectWebAccounts();
+					maskerPane.setProgress(0.2);
+					db.selectCreditCards();
+					maskerPane.setProgress(0.4);
+					db.selectPassports();
+					maskerPane.setProgress(0.6);
+					db.selectIdentities();
+					maskerPane.setProgress(0.8);
+					db.selectNotes();
+					maskerPane.setProgress(1);
+				} catch (Exception e)
+				{
+					ExceptionHandler.hanldeExpectedException("There was an error during loading data from database.",
+							e);
+				}
+			}
+		};
+		paneMaskerPane.setVisible(true);
+		selectThread.join();
+		selectThread.start();
+		
+		paneMaskerPane.setVisible(false);
+		listWebAccounts.addAll(db.getAccounts());
+
+		listCreditCards.addAll(db.getCreditCards());
+
+		listPassports.addAll(db.getPassports());
+
+		listIdentities.addAll(db.getIdentities());
+
+		listNotes.addAll(db.getNotes());
 	}
 
 	@FXML
 	void onSelectButtonMenu(ActionEvent event)
 	{
-		if (event.getSource().equals(btnDashboard))
+
+		if (event.getSource().equals(btnWebAccount))
 		{
-			scrollPaneDashboard.setVisible(true);
-			splitPaneListDetails.setVisible(false);
-			panePassportDetails.setVisible(false);
-			panePassportsList.setVisible(false);
-			paneCreditCardDetails.setVisible(false);
-			paneCreditCardList.setVisible(false);
-			paneWebAccountDetails.setVisible(false);
-			paneWebAccountList.setVisible(false);
-			doFillDashboard();
-		} else if (event.getSource().equals(btnWebAccount))
-		{
-			scrollPaneDashboard.setVisible(false);
 			splitPaneListDetails.setVisible(true);
 			panePassportDetails.setVisible(false);
 			panePassportsList.setVisible(false);
@@ -568,6 +643,10 @@ public class Controller_PasswordManager
 			paneCreditCardList.setVisible(false);
 			paneWebAccountDetails.setVisible(true);
 			paneWebAccountList.setVisible(true);
+			paneIdentityDetails.setVisible(false);
+			paneIdentityList.setVisible(false);
+			paneNoteDetails.setVisible(false);
+			paneNoteList.setVisible(false);
 			if (currentAccount == null)
 			{
 				paneWebAccountDetails.setVisible(false);
@@ -575,7 +654,6 @@ public class Controller_PasswordManager
 			// TODO do this for later things too
 		} else if (event.getSource().equals(btnCreditCard))
 		{
-			scrollPaneDashboard.setVisible(false);
 			splitPaneListDetails.setVisible(true);
 			paneCreditCardDetails.setVisible(true);
 			paneCreditCardList.setVisible(true);
@@ -583,6 +661,10 @@ public class Controller_PasswordManager
 			paneWebAccountList.setVisible(false);
 			panePassportDetails.setVisible(false);
 			panePassportsList.setVisible(false);
+			paneIdentityDetails.setVisible(false);
+			paneIdentityList.setVisible(false);
+			paneNoteDetails.setVisible(false);
+			paneNoteList.setVisible(false);
 			if (currentCard == null)
 			{
 				paneCreditCardDetails.setVisible(false);
@@ -590,12 +672,24 @@ public class Controller_PasswordManager
 			// TODO do this for later things too
 		} else if (event.getSource().equals(btnIdentities))
 		{
+			paneIdentityDetails.setVisible(true);
+			paneIdentityList.setVisible(true);
 			splitPaneListDetails.setVisible(true);
-			scrollPaneDashboard.setVisible(false);
+			paneCreditCardDetails.setVisible(false);
+			paneCreditCardList.setVisible(false);
+			paneWebAccountDetails.setVisible(false);
+			paneWebAccountList.setVisible(false);
+			panePassportDetails.setVisible(false);
+			panePassportsList.setVisible(false);
+			paneNoteDetails.setVisible(false);
+			paneNoteList.setVisible(false);
+			if (currentId == null)
+			{
+				paneIdentityDetails.setVisible(false);
+			}
 			// TODO do this for later things too
 		} else if (event.getSource().equals(btnPassport))
 		{
-			scrollPaneDashboard.setVisible(false);
 			splitPaneListDetails.setVisible(true);
 			panePassportDetails.setVisible(true);
 			panePassportsList.setVisible(true);
@@ -603,11 +697,31 @@ public class Controller_PasswordManager
 			paneCreditCardList.setVisible(false);
 			paneWebAccountDetails.setVisible(false);
 			paneWebAccountList.setVisible(false);
+			paneNoteDetails.setVisible(false);
+			paneNoteList.setVisible(false);
+			paneIdentityDetails.setVisible(false);
+			paneIdentityList.setVisible(false);
 			if (currentPass == null)
 			{
 				panePassportDetails.setVisible(false);
 			}
-
+		} else if (event.getSource().equals(btnNotes))
+		{
+			paneNoteDetails.setVisible(true);
+			paneNoteList.setVisible(true);
+			splitPaneListDetails.setVisible(true);
+			panePassportDetails.setVisible(false);
+			panePassportsList.setVisible(false);
+			paneCreditCardDetails.setVisible(false);
+			paneCreditCardList.setVisible(false);
+			paneWebAccountDetails.setVisible(false);
+			paneWebAccountList.setVisible(false);
+			paneIdentityDetails.setVisible(false);
+			paneIdentityList.setVisible(false);
+			if (currentNote == null)
+			{
+				paneNoteDetails.setVisible(false);
+			}
 		} else if (event.getSource().equals(btnSettings))
 		{
 			// TODO do this for later things too
@@ -1183,8 +1297,7 @@ public class Controller_PasswordManager
 			} else if (event.getSource().equals(btnIdentityCopyCountry))
 			{
 				SystemClipboard.copy(txtIdentityCountry.getText());
-			}
-			else if (event.getSource().equals(btnIdentityCopyDateOfBirth))
+			} else if (event.getSource().equals(btnIdentityCopyDateOfBirth))
 			{
 				SystemClipboard.copy(txtIdentityDateOfBirth.getText());
 			} else if (event.getSource().equals(btnIdentityCopyName))
@@ -1192,7 +1305,7 @@ public class Controller_PasswordManager
 				SystemClipboard.copy(txtIdentityName.getText());
 			} else if (event.getSource().equals(btnIdentityCopySalutation))
 			{
-				SystemClipboard.copy( ESalutation.getSalutationString(cmbxIdentitySalutation.getValue()));
+				SystemClipboard.copy(ESalutation.getSalutationString(cmbxIdentitySalutation.getValue()));
 			} else if (event.getSource().equals(btnIdentityCopyState))
 			{
 				SystemClipboard.copy(txtIdentityState.getText());
@@ -1208,8 +1321,7 @@ public class Controller_PasswordManager
 			}
 		} catch (Exception e)
 		{
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			ExceptionHandler.hanldeUnexpectedException(e);
 		}
 
 	}
@@ -1217,14 +1329,121 @@ public class Controller_PasswordManager
 	@FXML
 	void onSelectListViewIdentity(MouseEvent event)
 	{
-		if (event.getSource().equals(listViewIdentity))
+		try
 		{
-			if (listViewIdentity.getSelectionModel().getSelectedItem() != null)
+			if (event.getSource().equals(listViewIdentity))
 			{
-				paneIdentityDetails.setVisible(true);
-				currentId = listViewIdentity.getSelectionModel().getSelectedItem();
-				doFillTextFieldsIdentity();
+				if (listViewIdentity.getSelectionModel().getSelectedItem() != null)
+				{
+					paneIdentityDetails.setVisible(true);
+					currentId = listViewIdentity.getSelectionModel().getSelectedItem();
+					doFillTextFieldsIdentity();
+				}
 			}
+		} catch (Exception e)
+		{
+			ExceptionHandler.hanldeUnexpectedException(e);
+		}
+	}
+
+	// -------------------------------------------------------------
+	// ------------------- Notes things ----------------------------
+	// -------------------------------------------------------------
+
+	@FXML
+	void onSelectButtonNote(ActionEvent event)
+	{
+		try
+		{
+			if (event.getSource().equals(btnNoteAdd))
+			{
+				Note tmp = new Note();
+				listNotes.add(tmp);
+				currentNote = tmp;
+				listViewNote.getSelectionModel().select(listNotes.indexOf(currentNote));
+				doFillTextFieldsNote();
+				paneNoteEditDelete.setVisible(false);
+				paneNoteSaveCancelEdit.setVisible(true);
+				doSetTextFieldsNoteEditable(true);
+				db.addNote(currentNote);
+				paneNoteList.setDisable(true);
+				paneNoteDetails.setVisible(true);
+			} else if (event.getSource().equals(btnNoteCancelEdit))
+			{
+				doFillTextFieldsNote();
+				doSetTextFieldsNoteEditable(false);
+				paneNoteSaveCancelEdit.setVisible(false);
+				paneNoteEditDelete.setVisible(true);
+				paneNoteList.setDisable(false);
+			} else if (event.getSource().equals(btnNoteDelete))
+			{
+				if (doShowDeleteDialogNote())
+				{
+					doDeleteNote();
+				}
+			} else if (event.getSource().equals(btnNoteEdit))
+			{
+				doSetTextFieldsNoteEditable(true);
+				paneNoteSaveCancelEdit.setVisible(true);
+				paneNoteEditDelete.setVisible(false);
+				paneNoteList.setDisable(true);
+			} else if (event.getSource().equals(btnNoteSaveEdit))
+			{
+
+				Note tmp;
+				try
+				{
+					tmp = new Note(txtNoteTitle.getText(), txtNoteText.getText());
+				} catch (Exception ex)
+				{
+					doFillTextFieldsIdentity();
+					throw ex;
+				}
+				currentNote.setTitle(tmp.getTitle());
+				currentNote.setText(tmp.getText());
+
+				db.updateNote(currentNote);
+				doFillTextFieldsNote();
+				doSetTextFieldsNoteEditable(false);
+				paneNoteEditDelete.setVisible(true);
+				paneNoteSaveCancelEdit.setVisible(false);
+				imgNoteThumbnail.setImage(Note.getNoteImage());
+				paneNoteList.setDisable(false);
+				listViewNote.refresh();
+			} else if (event.getSource().equals(btnNoteCopyText))
+			{
+				SystemClipboard.copy(txtNoteText.getText());
+			} else if (event.getSource().equals(btnNoteCopyTitle))
+			{
+				SystemClipboard.copy(txtNoteTitle.getText());
+			}
+		} catch (SQLException e)
+		{
+			ExceptionHandler.hanldeUnexpectedException(e);
+		} catch (IOException e)
+		{
+			ExceptionHandler.hanldeUnexpectedException(e);
+		}
+	}
+
+	@FXML
+	void onSelectListViewNote(MouseEvent event)
+	{
+		// TODO
+		try
+		{
+			if (event.getSource().equals(listViewNote))
+			{
+				if (listViewNote.getSelectionModel().getSelectedItem() != null)
+				{
+					paneNoteDetails.setVisible(true);
+					currentNote = listViewNote.getSelectionModel().getSelectedItem();
+					doFillTextFieldsNote();
+				}
+			}
+		} catch (Exception e)
+		{
+			ExceptionHandler.hanldeUnexpectedException(e);
 		}
 	}
 
@@ -1371,6 +1590,63 @@ public class Controller_PasswordManager
 					iv.setFitWidth(25);
 					// Add the values from our piece to the HBox
 					hBox.getChildren().addAll(iv, new Label("   " + account.getName()));
+					// Set the HBox as the display
+					setGraphic(hBox);
+				}
+			}
+		});
+		cmbxIdentitySalutation.setCellFactory(cmbx -> new ListCell<ESalutation>() {
+			@Override
+			protected void updateItem(ESalutation item, boolean empty)
+			{
+				super.updateItem(item, empty);
+
+				if (empty)
+				{
+					setGraphic(null);
+				} else
+				{
+					// Create a HBox to hold our displayed value
+					HBox hBox = new HBox(2);
+					hBox.setAlignment(Pos.CENTER_LEFT);
+					ImageView iv = new ImageView();
+					try
+					{
+						iv.setImage(SwingFXUtils.toFXImage(ESalutation.getSalutationPicture(item), null));
+					} catch (IOException e)
+					{
+						ExceptionHandler.hanldeUnexpectedException(e);
+					}
+					iv.setFitHeight(25);
+					iv.setFitWidth(25);
+					// Add the values from our piece to the HBox
+					hBox.getChildren().addAll(iv, new Label("   " + ESalutation.getSalutationString(item)));
+
+					// Set the HBox as the display
+					setGraphic(hBox);
+				}
+			}
+		});
+		listViewIdentity.setCellFactory(listView -> new ListCell<Identity>() {
+			@Override
+			protected void updateItem(Identity account, boolean empty)
+			{
+				super.updateItem(account, empty);
+
+				if (empty)
+				{
+					setGraphic(null);
+				} else
+				{
+					// Create a HBox to hold our displayed value
+					HBox hBox = new HBox(2);
+					hBox.setAlignment(Pos.CENTER_LEFT);
+					ImageView iv = new ImageView(account.getThumbnail());
+					iv.setFitHeight(25);
+					iv.setFitWidth(25);
+					// Add the values from our piece to the HBox
+					hBox.getChildren().addAll(iv,
+							new Label("   " + account.getFirstName() + " " + account.getSurName()));
 					// Set the HBox as the display
 					setGraphic(hBox);
 				}
@@ -1634,47 +1910,46 @@ public class Controller_PasswordManager
 	}
 
 	// -------------------------------------------------------------
-	// ------------------- Dashboard things ------------------------
+	// -------------------- Notes things ---------------------------
 	// -------------------------------------------------------------
 
-	private void doFillDashboard()
+	private void doFillTextFieldsNote()
 	{
-		vboxDashboardItems.getChildren().clear();
-		final int separateAt = 5;
-		DashboardObject o;
-		int itemsUsed = 0;
-		HBox box = new HBox(10);
-
-		// FOR WEB ACCOUNTS
-		for (WebAccount w : listWebAccounts)
-		{
-
-			o = new DashboardObject(w, "Web Account", w.getName(), w.getUsername(), w.getThumbnail());
-			o.setVisible(true);
-
-			box.getChildren().add(o);
-			if ((itemsUsed % separateAt == 0 && itemsUsed != 0) || itemsUsed == listWebAccounts.size() - 1)
-			{
-				vboxDashboardItems.getChildren().add(box);
-				box = new HBox();
-			}
-			itemsUsed++;
-		}
-
-		// FOR CREDIT CARDS
-		itemsUsed = 0;
-		box = new HBox(10);
-
-		for (CreditCard c : listCreditCards)
-		{
-			o = new DashboardObject(c, "Credit Card", c.getCardName(), c.getOwnerName(), c.getThumbnail());
-			box.getChildren().add(o);
-			if ((itemsUsed % separateAt == 0 && itemsUsed != 0) || itemsUsed == listCreditCards.size() - 1)
-			{
-				vboxDashboardItems.getChildren().add(box);
-				box = new HBox();
-			}
-			itemsUsed++;
-		}
+		txtNoteText.setText(currentNote.getText());
+		txtNoteTitle.setText(currentNote.getTitle());
+		lblNoteName.setText(currentNote.getTitle());
 	}
+
+	private void doSetTextFieldsNoteEditable(boolean state)
+	{
+		txtNoteText.setEditable(state);
+		txtNoteTitle.setEditable(state);
+	}
+
+	private void doDeleteNote() throws SQLException
+	{
+		int pos = listNotes.indexOf(currentNote);
+		db.deleteNote(currentNote);
+		listNotes.remove(currentNote);
+		if (pos > 0)
+		{
+			currentNote = listNotes.get(pos - 1);
+			doFillTextFieldsNote();
+		} else if (pos == 0 && listNotes.size() > 0)
+		{
+			currentNote = listNotes.get(pos);
+			doFillTextFieldsNote();
+		}
+		currentNote = null;
+		paneNoteDetails.setVisible(false);
+	}
+
+	private boolean doShowDeleteDialogNote()
+	{
+		Alert alert = new Alert(AlertType.CONFIRMATION, "Delete Note \"" + currentNote.getTitle() + "\" ?",
+				ButtonType.YES, ButtonType.NO, ButtonType.CANCEL);
+		alert.showAndWait();
+		return alert.getResult() == ButtonType.YES;
+	}
+
 }
