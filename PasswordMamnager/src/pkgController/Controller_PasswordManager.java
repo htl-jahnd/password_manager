@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.security.NoSuchAlgorithmException;
 import java.sql.SQLException;
 import java.time.YearMonth;
 import javax.imageio.ImageIO;
@@ -12,14 +13,17 @@ import javax.imageio.ImageIO;
 import org.controlsfx.control.MaskerPane;
 
 import com.jfoenix.controls.JFXButton;
+import com.jfoenix.controls.JFXCheckBox;
 import com.jfoenix.controls.JFXComboBox;
 import com.jfoenix.controls.JFXListView;
 import com.jfoenix.controls.JFXPasswordField;
+import com.jfoenix.controls.JFXSlider;
 import com.jfoenix.controls.JFXTextArea;
 import com.jfoenix.controls.JFXTextField;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.concurrent.Task;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -29,6 +33,7 @@ import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.control.SplitPane;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
@@ -47,10 +52,12 @@ import pkgData.WebAccount;
 import pkgExceptions.IdentityException;
 import pkgExceptions.InvalidCardException;
 import pkgExceptions.InvalidPassportException;
+import pkgExceptions.InvalidPasswordException;
 import pkgExceptions.InvalidWebAccountException;
 import pkgExceptions.NoteException;
 import pkgMisc.DateUtils;
 import pkgMisc.ExceptionHandler;
+import pkgMisc.PasswordUtils;
 import pkgMisc.SystemClipboard;
 
 public class Controller_PasswordManager
@@ -524,6 +531,39 @@ public class Controller_PasswordManager
 	@FXML
 	private MaskerPane maskerPane;
 
+	@FXML
+	private ScrollPane scrollPaneSettings;
+
+	@FXML
+	private JFXPasswordField pwdSettingsPassword;
+
+	@FXML
+	private JFXButton btnSettingsDeleteAccount;
+
+	@FXML
+	private JFXCheckBox chckSettingsIncludeSymbols;
+
+	@FXML
+	private JFXCheckBox chckSettingsIncludeNumbers;
+
+	@FXML
+	private JFXCheckBox chckSettingsIncludeLowcase;
+
+	@FXML
+	private JFXCheckBox chckSettingsIncludeUppercase;
+
+	@FXML
+	private JFXSlider sliderSettingsPasswordLength;
+
+	@FXML
+	private JFXButton btnSettingsGeneratePassword;
+
+	@FXML
+	private JFXTextField txtSettingsPasswordOutput;
+
+	@FXML
+	private JFXButton btnSettingsCopyPassword;
+
 	// ============================================================
 	// ============================================================
 	// =================== NO FXML VARIABLES ======================
@@ -593,44 +633,73 @@ public class Controller_PasswordManager
 		listViewNote.setItems(listNotes);
 
 		doSetListCellFactories();
-		doInsertTestData();
+		// doInsertTestData();
 
-//		Thread selectThread = new Thread() { // new anon thread for selecting from db while showing an masker pane in ui for better ux
-//			public void run()
-//			{
-//				try
-//				{
-//					db.selectWebAccounts();
-//					maskerPane.setProgress(0.2);
-//					db.selectCreditCards();
-//					maskerPane.setProgress(0.4);
-//					db.selectPassports();
-//					maskerPane.setProgress(0.6);
-//					db.selectIdentities();
-//					maskerPane.setProgress(0.8);
-//					db.selectNotes();
-//					maskerPane.setProgress(1);
-//				} catch (Exception e)
-//				{
-//					ExceptionHandler.hanldeExpectedException("There was an error during loading data from database.",
-//							e);
-//				}
-//			}
-//		};
-//		paneMaskerPane.setVisible(true);
-//		selectThread.join();
-//		selectThread.start();
-//		
-//		paneMaskerPane.setVisible(false);
-//		listWebAccounts.addAll(db.getAccounts());
-//
-//		listCreditCards.addAll(db.getCreditCards());
-//
-//		listPassports.addAll(db.getPassports());
-//
-//		listIdentities.addAll(db.getIdentities());
-//
-//		listNotes.addAll(db.getNotes());
+		// Task task = new Task<Void>() {
+		// @Override public Void call() {
+		// final int max = 1000000;
+		// for (int i=1; i<=max; i++) {
+		// if (isCancelled()) {
+		// break;
+		// }
+		// db.selectWebAccounts();
+		// updateProgress(i, max);
+		// }
+		// return null;
+		// }
+		// };
+		//
+
+		// Thread selectThread = new Thread() { // new anon thread for selecting from db
+		// while showing an masker pane in ui for better ux
+		// public void run()
+		// {
+		// try
+		// {
+		//
+		// maskerPane.setProgress(0.2);
+		// db.selectCreditCards();
+		// maskerPane.setProgress(0.4);
+		// db.selectPassports();
+		// maskerPane.setProgress(0.6);
+		// db.selectIdentities();
+		// maskerPane.setProgress(0.8);
+		// db.selectNotes();
+		// maskerPane.setProgress(1);
+		// } catch (Exception e)
+		// {
+		// ExceptionHandler.hanldeExpectedException("There was an error during loading
+		// data from database.",
+		// e);
+		// }
+		// }
+		// };
+		db.selectWebAccounts();
+		maskerPane.setProgress(0.2);
+		db.selectCreditCards();
+		maskerPane.setProgress(0.4);
+		db.selectPassports();
+		maskerPane.setProgress(0.6);
+		db.selectIdentities();
+		maskerPane.setProgress(0.8);
+		db.selectNotes();
+		maskerPane.setProgress(1);
+		paneMaskerPane.setVisible(true);
+		// selectThread.join();
+		// selectThread.start();
+
+		paneMaskerPane.setVisible(false);
+		listWebAccounts.addAll(db.getAccounts());
+
+		System.out.println(db.getAccounts());
+
+		listCreditCards.addAll(db.getCreditCards());
+
+		listPassports.addAll(db.getPassports());
+
+		listIdentities.addAll(db.getIdentities());
+
+		listNotes.addAll(db.getNotes());
 	}
 
 	@FXML
@@ -639,6 +708,7 @@ public class Controller_PasswordManager
 
 		if (event.getSource().equals(btnWebAccount))
 		{
+			scrollPaneSettings.setVisible(false);
 			splitPaneListDetails.setVisible(true);
 			panePassportDetails.setVisible(false);
 			panePassportsList.setVisible(false);
@@ -668,6 +738,7 @@ public class Controller_PasswordManager
 			paneIdentityList.setVisible(false);
 			paneNoteDetails.setVisible(false);
 			paneNoteList.setVisible(false);
+			scrollPaneSettings.setVisible(false);
 			if (currentCard == null)
 			{
 				paneCreditCardDetails.setVisible(false);
@@ -686,6 +757,7 @@ public class Controller_PasswordManager
 			panePassportsList.setVisible(false);
 			paneNoteDetails.setVisible(false);
 			paneNoteList.setVisible(false);
+			scrollPaneSettings.setVisible(false);
 			if (currentId == null)
 			{
 				paneIdentityDetails.setVisible(false);
@@ -704,6 +776,7 @@ public class Controller_PasswordManager
 			paneNoteList.setVisible(false);
 			paneIdentityDetails.setVisible(false);
 			paneIdentityList.setVisible(false);
+			scrollPaneSettings.setVisible(false);
 			if (currentPass == null)
 			{
 				panePassportDetails.setVisible(false);
@@ -721,13 +794,25 @@ public class Controller_PasswordManager
 			paneWebAccountList.setVisible(false);
 			paneIdentityDetails.setVisible(false);
 			paneIdentityList.setVisible(false);
+			scrollPaneSettings.setVisible(false);
 			if (currentNote == null)
 			{
 				paneNoteDetails.setVisible(false);
 			}
 		} else if (event.getSource().equals(btnSettings))
 		{
-			// TODO do this for later things too
+			scrollPaneSettings.setVisible(true);
+			paneNoteDetails.setVisible(false);
+			paneNoteList.setVisible(false);
+			splitPaneListDetails.setVisible(false);
+			panePassportDetails.setVisible(false);
+			panePassportsList.setVisible(false);
+			paneCreditCardDetails.setVisible(false);
+			paneCreditCardList.setVisible(false);
+			paneWebAccountDetails.setVisible(false);
+			paneWebAccountList.setVisible(false);
+			paneIdentityDetails.setVisible(false);
+			paneIdentityList.setVisible(false);
 		}
 
 	}
@@ -1019,11 +1104,10 @@ public class Controller_PasswordManager
 			{
 				SystemClipboard.copy(cmbxCreditCardProvider.getValue().toString());
 			}
-		} 
-		catch(InvalidCardException e) {
+		} catch (InvalidCardException e)
+		{
 			ExceptionHandler.hanldeExpectedException("Input error.", e);
-		}
-		catch (Exception e)
+		} catch (Exception e)
 		{
 			ExceptionHandler.hanldeUnexpectedException(e);
 		}
@@ -1087,7 +1171,6 @@ public class Controller_PasswordManager
 				panePassportsList.setDisable(true);
 			} else if (event.getSource().equals(btnPassportSaveEdit)) // on save after edit passport
 			{
-
 				String nm;
 				if (txtPassportNumber.isVisible())
 					nm = txtPassportNumber.getText();
@@ -1104,7 +1187,7 @@ public class Controller_PasswordManager
 							DateUtils.getLocalDateOfString(txtPassportDateOfIssue.getText()),
 							DateUtils.getLocalDateOfString(txtPassportExpirationDate.getText()),
 							cmbxPassportSex.getValue(), txtPassportAuthority.getText(), nm,
-							txtPassportAdditionalInformation.getText());
+							txtPassportAdditionalInformation.getText(), Database.getNextPassportId());
 				} catch (Exception ex)
 				{
 					doFillTextFieldsPassport();
@@ -1193,11 +1276,10 @@ public class Controller_PasswordManager
 			{
 				SystemClipboard.copy(txtPassportPlaceOfBirth.getText());
 			}
-		} 
-		catch(InvalidPassportException e) {
+		} catch (InvalidPassportException e)
+		{
 			ExceptionHandler.hanldeExpectedException("Input error.", e);
-		}
-		catch (Exception e)
+		} catch (Exception e)
 		{
 			ExceptionHandler.hanldeUnexpectedException(e);
 		}
@@ -1270,9 +1352,9 @@ public class Controller_PasswordManager
 				{
 					tmp = new Identity(cmbxIdentitySalutation.getValue(), txtIdentityName.getText(),
 							txtIdentitySurname.getText(), txtIdentityStreetAddress.getText(), txtIdentityCity.getText(),
-							txtIdentityZipCode.getText(), txtIdentityState.getText(),
+							Integer.valueOf(txtIdentityZipCode.getText()), txtIdentityState.getText(),
 							DateUtils.getLocalDateOfString(txtIdentityDateOfBirth.getText()),
-							txtIdentityCountry.getText(), txtIdentityAdditionalInformation.getText());
+							txtIdentityCountry.getText(), txtIdentityAdditionalInformation.getText(), Database.getNextIdentityId());
 				} catch (Exception ex)
 				{
 					doFillTextFieldsIdentity();
@@ -1330,11 +1412,10 @@ public class Controller_PasswordManager
 			{
 				SystemClipboard.copy(txtIdentityZipCode.getText());
 			}
-		} 
-		catch(IdentityException e) {
+		} catch (IdentityException e)
+		{
 			ExceptionHandler.hanldeExpectedException("Input error.", e);
-		}
-		catch (Exception e)
+		} catch (Exception e)
 		{
 			ExceptionHandler.hanldeUnexpectedException(e);
 		}
@@ -1408,7 +1489,7 @@ public class Controller_PasswordManager
 				Note tmp;
 				try
 				{
-					tmp = new Note(txtNoteTitle.getText(), txtNoteText.getText());
+					tmp = new Note(txtNoteTitle.getText(), txtNoteText.getText(), Database.getNextNoteId());
 				} catch (Exception ex)
 				{
 					doFillTextFieldsIdentity();
@@ -1432,22 +1513,18 @@ public class Controller_PasswordManager
 			{
 				SystemClipboard.copy(txtNoteTitle.getText());
 			}
-		} catch (SQLException e)
-		{
-			ExceptionHandler.hanldeUnexpectedException(e);
-		} catch (IOException e)
-		{
-			ExceptionHandler.hanldeUnexpectedException(e);
 		} catch (NoteException e)
 		{
-			ExceptionHandler.hanldeExpectedException("Input error.",e);
+			ExceptionHandler.hanldeExpectedException("Input error.", e);
+		} catch (Exception e)
+		{
+			ExceptionHandler.hanldeUnexpectedException(e);
 		}
 	}
 
 	@FXML
 	void onSelectListViewNote(MouseEvent event)
 	{
-		// TODO
 		try
 		{
 			if (event.getSource().equals(listViewNote))
@@ -1463,6 +1540,51 @@ public class Controller_PasswordManager
 		{
 			ExceptionHandler.hanldeUnexpectedException(e);
 		}
+	}
+
+	// -------------------------------------------------------------
+	// ------------------- Settings things -------------------------
+	// -------------------------------------------------------------
+
+	@FXML
+	void onSelectButtonSettings(ActionEvent event) 
+	{
+		try
+		{
+			if (event.getSource().equals(btnSettingsCopyPassword))
+			{
+				SystemClipboard.copy(txtSettingsPasswordOutput.getText());
+			} else if (event.getSource().equals(btnSettingsDeleteAccount))
+			{
+				Alert alert = new Alert(AlertType.CONFIRMATION, "Delete " + db.getUser().getUsername() + "?", ButtonType.YES,
+						ButtonType.NO, ButtonType.CANCEL);
+				alert.showAndWait();
+
+				if(alert.getResult() == ButtonType.YES) {
+					db.deleteUser();
+					System.exit(0);
+				}
+				
+			} else if (event.getSource().equals(btnSettingsGeneratePassword))
+			{
+				String symbols="";
+				if(chckSettingsIncludeLowcase.isSelected()) 
+					symbols += PasswordUtils.LOWER_ALPHABET;
+				if(chckSettingsIncludeUppercase.isSelected())
+					symbols +=PasswordUtils.UPPER_ALPHABET;
+				if(chckSettingsIncludeNumbers.isSelected())
+					symbols += PasswordUtils.DIGITS_ALPHABET;
+				if(chckSettingsIncludeSymbols.isSelected())
+					symbols +=PasswordUtils.SYMBOLS_ALPHABET;
+				if(symbols =="")
+					throw new IllegalArgumentException("At least one checkbox has to be selected.");
+				String output = PasswordUtils.generatePassword(symbols, (int)sliderSettingsPasswordLength.getValue());
+				txtSettingsPasswordOutput.setText(output);
+			}
+		}  catch (Exception e)
+		{
+			ExceptionHandler.hanldeUnexpectedException(e);
+		} 
 	}
 
 	// ============================================================
@@ -1670,7 +1792,7 @@ public class Controller_PasswordManager
 				}
 			}
 		});
-		
+
 		listViewNote.setCellFactory(listView -> new ListCell<Note>() {
 			@Override
 			protected void updateItem(Note pass, boolean empty)
@@ -1685,7 +1807,7 @@ public class Controller_PasswordManager
 					// Create a HBox to hold our displayed value
 					HBox hBox = new HBox(2);
 					hBox.setAlignment(Pos.CENTER_LEFT);
-					ImageView iv=null;
+					ImageView iv = null;
 					try
 					{
 						iv = new ImageView(Note.getNoteImage());
@@ -1696,30 +1818,12 @@ public class Controller_PasswordManager
 					iv.setFitHeight(25);
 					iv.setFitWidth(25);
 					// Add the values from our piece to the HBox
-					hBox.getChildren().addAll(iv, new Label("   " + pass.getTitle() ));
+					hBox.getChildren().addAll(iv, new Label("   " + pass.getTitle()));
 					// Set the HBox as the display
 					setGraphic(hBox);
 				}
 			}
 		});
-	}
-
-	private void doInsertTestData() throws MalformedURLException, IOException, URISyntaxException,
-			InvalidWebAccountException, InvalidCardException
-	{
-		listWebAccounts.add(new WebAccount("test1", "google.com", "https://www.google.com/", "googleUser",
-				"googlePassword", "info for google"));
-		listWebAccounts.add(new WebAccount("test2", "facebook.com", "https://www.facebook.com/", "fbUser", "fbPassword",
-				"info for fb"));
-		listWebAccounts.add(new WebAccount("test3", "twitter.com", "https://www.twitter.com/", "tiwtterUser",
-				"twitterPassword", "info for twitter"));
-		listWebAccounts.add(new WebAccount("test4", "tumblr.com", "https://www.tumblr.com/", "tumblrUser",
-				"tumblrPassword", "info for tumblr"));
-		listWebAccounts.add(new WebAccount("Pronhub", "pornhub.com", "https://www.pornhub.com/", "pornhubUser",
-				"pornhubPassword", "info for pornhub"));
-
-		listCreditCards.add(new CreditCard("Test card 1", "1234 5678", "Owner No1", YearMonth.of(2020, 11),
-				ECreditCardsProviders.Visa, "Infooo", "Erste Bank", 123));
 	}
 
 	// -------------------------------------------------------------
@@ -1932,7 +2036,7 @@ public class Controller_PasswordManager
 		cmbxIdentitySalutation.setDisable(!state);
 	}
 
-	private void doDeleteIdentity() throws SQLException
+	private void doDeleteIdentity() throws Exception
 	{
 		int pos = listIdentities.indexOf(currentId);
 		db.deleteIdentity(currentId);
@@ -1976,7 +2080,7 @@ public class Controller_PasswordManager
 		txtNoteTitle.setEditable(state);
 	}
 
-	private void doDeleteNote() throws SQLException
+	private void doDeleteNote() throws Exception
 	{
 		int pos = listNotes.indexOf(currentNote);
 		db.deleteNote(currentNote);

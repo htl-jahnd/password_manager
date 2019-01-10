@@ -2,6 +2,7 @@ package pkgData;
 
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.YearMonth;
 import java.time.format.DateTimeFormatter;
@@ -18,10 +19,21 @@ public class CreditCard extends Card
 	private ECreditCardsProviders provider;
 	private Integer securityCode;
 	private BufferedImage thumbnail;
+	private int id;
+
+	public int getId()
+	{
+		return id;
+	}
+
+	public void setId(int id)
+	{
+		this.id = id;
+	}
 
 	public CreditCard(String cardName, String cardNumber, String cardOwner, YearMonth expireDate,
 			ECreditCardsProviders provider, String additionalInformation, String bankName, Integer securityCode,
-			BufferedImage thumbnail) throws IOException, InvalidCardException
+			BufferedImage thumbnail, int id) throws IOException, InvalidCardException
 	{
 		super(cardName, cardOwner, bankName, expireDate, additionalInformation);
 		setCardNumber(cardNumber);
@@ -36,16 +48,16 @@ public class CreditCard extends Card
 
 	public CreditCard(String cardName, String cardNumber, String cardOwner, YearMonth validationDate,
 			ECreditCardsProviders provider, String additionalInformation, String bankName, Integer securityCode)
-			throws IOException, InvalidCardException
+			throws IOException, InvalidCardException, SQLException
 	{
 		this(cardName, cardNumber, cardOwner, validationDate, provider, additionalInformation, bankName, securityCode,
-				null);
+				null, Database.getNextCreditCardId());
 	}
 	
-	public CreditCard() throws IOException, InvalidCardException {
+	public CreditCard() throws IOException, InvalidCardException, SQLException {
 		this("Name", "0000 1111 2222 3333 4444", "Card Owner",
 						YearMonth.of(LocalDate.now().plusYears(5).getYear(), LocalDate.now().getMonth()), ECreditCardsProviders.Other,
-						"Additional Information", "Example Bank", Integer.valueOf(123));
+						"Additional Information", "Example Bank", Integer.valueOf(123),null, Database.getNextCreditCardId());
 	}
 
 	public String getCardNumber()

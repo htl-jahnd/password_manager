@@ -1,6 +1,7 @@
 package pkgData;
 
 import java.io.IOException;
+import java.sql.SQLException;
 
 import javax.imageio.ImageIO;
 
@@ -12,17 +13,29 @@ public class Note
 {
 	private String text;
 	private String title;
+	private int id;
 	
-	public Note(String title, String text)
+	public int getId()
+	{
+		return id;
+	}
+
+	public void setId(int id)
+	{
+		this.id = id;
+	}
+
+	public Note(String title, String text, int id)
 	{
 		super();
 		this.text = text;
 		this.title = title;
+		this.id = id;
 	}
 	
-	public Note()
+	public Note() throws SQLException
 	{
-		this("Things to buy", "Eggs, Milk, Butter, ...");
+		this("Things to buy", "Eggs, Milk, Butter, ...", Database.getNextNoteId());
 	}
 
 	@Override

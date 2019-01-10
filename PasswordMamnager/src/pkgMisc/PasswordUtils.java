@@ -13,6 +13,9 @@ import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.InvalidParameterSpecException;
+import java.util.Locale;
+import java.util.Random;
+
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
@@ -30,6 +33,25 @@ public class PasswordUtils
 
 	public static final int SALT_LENGTH = 16;
 	private static final Charset STANDARD_CHARSET = StandardCharsets.UTF_8;
+	public static final String UPPER_ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+	public static final String LOWER_ALPHABET = UPPER_ALPHABET.toLowerCase();
+	public static final String DIGITS_ALPHABET = "0123456789";
+	public static final String SYMBOLS_ALPHABET = "@§$%&/?*#_";
+
+	public static String generatePassword(String alphabet, int length)
+	{
+		if (length < 1)
+			throw new IllegalArgumentException("Length must be bigger than 5.");
+		char[] buf;
+		char[] symbols;
+		Random random;
+		random = new SecureRandom();
+		symbols = alphabet.toCharArray();
+		buf = new char[length];
+		for (int idx = 0; idx < buf.length; ++idx)
+			buf[idx] = symbols[random.nextInt(symbols.length)];
+		return new String(buf);
+	}
 
 	public static byte[] generateSalt(int length)
 	{
@@ -38,8 +60,9 @@ public class PasswordUtils
 		random.nextBytes(bytes);
 		return bytes;
 	}
-	
-	public static String generateSaltAsString(int length) {
+
+	public static String generateSaltAsString(int length)
+	{
 		SecureRandom random = new SecureRandom();
 		byte bytes[] = new byte[length];
 		random.nextBytes(bytes);

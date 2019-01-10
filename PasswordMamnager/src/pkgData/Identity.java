@@ -2,6 +2,7 @@ package pkgData;
 
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.sql.SQLException;
 import java.time.LocalDate;
 
 import javax.imageio.ImageIO;
@@ -20,15 +21,18 @@ public class Identity
 	private String surName;
 	private String streetAddress;
 	private String cityAddress;
-	private String zipAddress;
+	private int zipAddress;
 	private String stateAddress;
 	private LocalDate dateOfBirth; 
 	private String country;
 	private String additionalInformation;
 	private BufferedImage thumbnail;
+	private int number;
+
+
 
 	public Identity(ESalutation salutation, String firstName, String surName, String streetAddress,
-			String cityAddress, String zipAddress, String stateAddress, LocalDate dateOfBirth, String country, String additionalInformation) throws IOException
+			String cityAddress, int zipAddress, String stateAddress, LocalDate dateOfBirth, String country, String additionalInformation, int id) throws IOException, SQLException
 	{
 		super();
 		this.salutation = salutation;
@@ -41,11 +45,12 @@ public class Identity
 		this.dateOfBirth = dateOfBirth;
 		this.country = country;
 		this.additionalInformation = additionalInformation;
-		thumbnail= ImageIO.read(getClass().getResourceAsStream("/pkgMain/ressources/images/id-card-regular.png"));;
+		thumbnail= ImageIO.read(getClass().getResourceAsStream("/pkgMain/ressources/images/id-card-regular.png"));
+		number=Database.getNextIdentityId();
 	}
 	
-	public Identity() throws IOException {
-		this(ESalutation.Other, "James", "Bond", "Bakerstreet 221 B", "London", "WC2N 5DU", "England", DateUtils.getLocalDateOfString("11.11.1920"), "United Kingom"," 007");
+	public Identity() throws IOException, SQLException {
+		this(ESalutation.Other, "James", "Bond", "Bakerstreet 221 B", "London", 1234, "England", DateUtils.getLocalDateOfString("11.11.1920"), "United Kingom"," 007",Database.getNextIdentityId());
 	}
 
 
@@ -116,15 +121,13 @@ public class Identity
 		this.cityAddress = cityAddress;
 	}
 
-	public String getZipAddress()
+	public int getZipAddress()
 	{
 		return zipAddress;
 	}
 
-	public void setZipAddress(String zipAddress) throws IdentityException
+	public void setZipAddress(int zipAddress) throws IdentityException
 	{
-		if(zipAddress == null || zipAddress.trim().isEmpty()) 
-			throw new IdentityException("Zip code must not be empty.");
 		this.zipAddress = zipAddress;
 	}
 
@@ -191,6 +194,16 @@ public class Identity
 	public Image getThumbnail()
 	{
 		return SwingFXUtils.toFXImage(thumbnail, null);
+	}
+	
+	public int getNumber()
+	{
+		return number;
+	}
+
+	public void setNumber(int number)
+	{
+		this.number = number;
 	}
 	
 }

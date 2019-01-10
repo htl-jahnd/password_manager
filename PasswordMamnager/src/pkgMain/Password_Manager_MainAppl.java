@@ -24,7 +24,7 @@ public class Password_Manager_MainAppl extends Application
 	{
 		try
 		{
-			Parent root = FXMLLoader.load(getClass().getResource("ressources/PasswordManager.fxml"));
+			Parent root = FXMLLoader.load(getClass().getResource("ressources/SignIn.fxml"));
 			Scene scene = new Scene(root);
 			scene.getStylesheets().add(getClass().getResource("ressources/stylesheet.css").toExternalForm());
 			primaryStage.setTitle("Password Manager");

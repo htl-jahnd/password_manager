@@ -19,7 +19,7 @@ public interface IDatabase_Controller
 
 	public void selectPassports() throws SQLException, IOException, InvalidPassportException;
 
-	public void selectIdentities() throws SQLException;
+	public void selectIdentities() throws SQLException, IOException;
 
 	public void selectNotes() throws SQLException;
 
@@ -47,16 +47,16 @@ public interface IDatabase_Controller
 	// Note
 	public void addNote(Note NoteToAdd) throws SQLException;
 
-	public void deleteNote(Note noteToDelete) throws SQLException;
+	public void deleteNote(Note noteToDelete) throws SQLException, Exception;
 
 	public void updateNote(Note noteToDelete) throws SQLException;
 
 	// Identity
 	public void addIdentity(Identity idToAdd) throws SQLException;
 
-	public void deleteIdentity(Identity idToDelte) throws SQLException;
+	public void deleteIdentity(Identity idToDelte) throws SQLException, Exception;
 
-	public void updateIdentity(Identity idToUpdate) throws SQLException;
+	public void updateIdentity(Identity idToUpdate) throws SQLException, Exception;
 
 	// Gets
 

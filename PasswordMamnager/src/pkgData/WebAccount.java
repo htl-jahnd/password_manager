@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.List;
 
@@ -30,9 +31,20 @@ public class WebAccount
 	private String password;
 	private String additionalInformation;
 	private BufferedImage thumbnail;
+	private int id;
+
+	public int getId()
+	{
+		return id;
+	}
+
+	public void setId(int id)
+	{
+		this.id = id;
+	}
 
 	public WebAccount(String name, String websiteName, String websiteURL, String username, String password,
-			String additionalInformation, BufferedImage thumbnailParam)
+			String additionalInformation, int id)
 			throws MalformedURLException, IOException, URISyntaxException, InvalidWebAccountException
 	{
 		super();
@@ -42,26 +54,23 @@ public class WebAccount
 		setUsername(username);
 		setPassword(password);
 		this.additionalInformation = additionalInformation;
-		if (thumbnailParam == null)
-		{
-			checkThumbnailDownload();
-		} else
-			thumbnail = thumbnailParam;
-
+		checkThumbnailDownload();
+		this.id = id;
 	}
 
 	public WebAccount(String name, String websiteName, String websiteURL, String username, String password,
-			String additionalInformation) throws MalformedURLException, IOException, URISyntaxException, InvalidWebAccountException
+			String additionalInformation)
+			throws MalformedURLException, IOException, URISyntaxException, InvalidWebAccountException, SQLException
 	{
-		this(name, websiteName, websiteURL, username, password, additionalInformation, null);
+		this(name, websiteName, websiteURL, username, password, additionalInformation, Database.getNextWebAccountId());
 	}
 
-	public WebAccount() throws MalformedURLException, IOException, URISyntaxException, InvalidWebAccountException {
-		this("Name", "example.com", "https://example.com/", "max.mustermann", "1234",
-						"Info for example.com.");
+	public WebAccount() throws MalformedURLException, IOException, URISyntaxException, InvalidWebAccountException, SQLException
+	{
+		this("Name", "example.com", "https://example.com/", "max.mustermann", "1234", "Info for example.com.", Database.getNextWebAccountId());
 	}
-	
-	private void checkThumbnailDownload() throws IOException //TODO doesnt work everytime
+
+	private void checkThumbnailDownload() throws IOException // TODO doesnt work everytime
 	{
 		try
 		{
@@ -87,9 +96,9 @@ public class WebAccount
 
 	public void setName(String name) throws InvalidWebAccountException
 	{
-		if(name == null)
+		if (name == null)
 			throw new InvalidWebAccountException("Name must not be null");
-		else if(name.trim().isEmpty())
+		else if (name.trim().isEmpty())
 			throw new InvalidWebAccountException("Name must not be empty");
 		this.name = name;
 	}
@@ -101,9 +110,9 @@ public class WebAccount
 
 	public void setWebsiteName(String accountName) throws InvalidWebAccountException
 	{
-		if(accountName == null)
+		if (accountName == null)
 			throw new InvalidWebAccountException("Name must not be null");
-		else if(accountName.trim().isEmpty())
+		else if (accountName.trim().isEmpty())
 			throw new InvalidWebAccountException("Name must not be empty");
 		this.websiteName = accountName;
 	}
@@ -115,9 +124,9 @@ public class WebAccount
 
 	public void setUsername(String username) throws InvalidWebAccountException
 	{
-		if(username == null)
+		if (username == null)
 			throw new InvalidWebAccountException("Username must not be null");
-		else if(username.trim().isEmpty())
+		else if (username.trim().isEmpty())
 			throw new InvalidWebAccountException("Username must not be empty");
 		this.username = username;
 	}
@@ -129,9 +138,9 @@ public class WebAccount
 
 	public void setPassword(String password) throws InvalidWebAccountException
 	{
-		if(password == null)
+		if (password == null)
 			throw new InvalidWebAccountException("Password must not be null");
-		else if(password.trim().isEmpty())
+		else if (password.trim().isEmpty())
 			throw new InvalidWebAccountException("Password must not be empty");
 		this.password = password;
 	}
@@ -153,14 +162,14 @@ public class WebAccount
 
 	public void setWebsiteURL(String websiteURL) throws IOException, InvalidWebAccountException
 	{
-		if(websiteURL == null)
+		if (websiteURL == null)
 			throw new InvalidWebAccountException("Website URL must not be null");
-		else if(websiteURL.trim().isEmpty())
+		else if (websiteURL.trim().isEmpty())
 			throw new InvalidWebAccountException("Website URL must not be empty");
-		else if(!AddressFormatValidator.isValidUrl(websiteURL))
+		else if (!AddressFormatValidator.isValidUrl(websiteURL))
 			throw new InvalidWebAccountException("Invalid website URL");
 		this.websiteURL = websiteURL;
-		checkThumbnailDownload(); 
+		checkThumbnailDownload();
 	}
 
 	public Image getThumbnail()

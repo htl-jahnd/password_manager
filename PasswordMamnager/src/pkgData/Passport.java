@@ -2,6 +2,7 @@ package pkgData;
 
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.sql.SQLException;
 import java.time.LocalDate;
 
 import javax.imageio.ImageIO;
@@ -27,10 +28,21 @@ public class Passport
 	private String number;
 	private String additionalInformation;
 	private BufferedImage thumbnail;
+	private int id;
+
+	public int getId()
+	{
+		return id;
+	}
+
+	public void setId(int id)
+	{
+		this.id = id;
+	}
 
 	public Passport(String givenNames, String surName, String nationality, LocalDate dateOfBirth, String placeOfBirth,
 			LocalDate dateOfIssue, LocalDate exirationDate, ESex sex, String authority, String number,
-			String additionalInformation) throws IOException, InvalidPassportException
+			String additionalInformation, int id) throws IOException, InvalidPassportException
 	{
 		super();
 		this.setGivenNames(givenNames);
@@ -44,13 +56,14 @@ public class Passport
 		this.setAuthority(authority);
 		this.setNumber(number);
 		this.setAdditionalInformation(additionalInformation);
+		this.id = id;
 		thumbnail= ImageIO.read(getClass().getResourceAsStream("/pkgMain/ressources/images/passport-solid.png"));
 	}
 	
-	public Passport() throws IOException, InvalidPassportException {
+	public Passport() throws IOException, InvalidPassportException, SQLException {
 		this("John", "Doe", "Utopia", LocalDate.now().minusYears(25),
 						"Sample Town", LocalDate.now(), LocalDate.now().plusYears(10),
-						ESex.Male, "Passport Office", "12345678", "Some additional Information");
+						ESex.Male, "Passport Office", "12345678", "Some additional Information", Database.getNextPassportId());
 	}
 
 	public String getGivenNames()
