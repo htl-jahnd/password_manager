@@ -526,12 +526,6 @@ public class Controller_PasswordManager
 	private JFXListView<Note> listViewNote;
 
 	@FXML
-	private AnchorPane paneMaskerPane;
-
-	@FXML
-	private MaskerPane maskerPane;
-
-	@FXML
 	private ScrollPane scrollPaneSettings;
 
 	@FXML
@@ -624,10 +618,10 @@ public class Controller_PasswordManager
 		listViewIdentity.setItems(listIdentities);
 
 		listSalutations = FXCollections.observableArrayList();
-		cmbxIdentitySalutation.setItems(listSalutations);
 		listSalutations.add(ESalutation.Miss);
 		listSalutations.add(ESalutation.Mister);
 		listSalutations.add(ESalutation.Other);
+		cmbxIdentitySalutation.setItems(listSalutations);
 
 		listNotes = FXCollections.observableArrayList();
 		listViewNote.setItems(listNotes);
@@ -675,20 +669,13 @@ public class Controller_PasswordManager
 		// }
 		// };
 		db.selectWebAccounts();
-		maskerPane.setProgress(0.2);
 		db.selectCreditCards();
-		maskerPane.setProgress(0.4);
 		db.selectPassports();
-		maskerPane.setProgress(0.6);
 		db.selectIdentities();
-		maskerPane.setProgress(0.8);
 		db.selectNotes();
-		maskerPane.setProgress(1);
-		paneMaskerPane.setVisible(true);
 		// selectThread.join();
 		// selectThread.start();
 
-		paneMaskerPane.setVisible(false);
 		listWebAccounts.addAll(db.getAccounts());
 
 		System.out.println(db.getAccounts());
@@ -2020,6 +2007,7 @@ public class Controller_PasswordManager
 		txtIdentitySurname.setText(currentId.getSurName());
 		txtIdentityZipCode.setText(String.valueOf(currentId.getZipAddress()));
 		imgIdentityThumbnail.setImage(currentId.getThumbnail());
+		cmbxIdentitySalutation.setValue(currentId.getSalutation());
 	}
 
 	private void doSetTextFieldsIdentityEditable(boolean state)
