@@ -6,6 +6,7 @@ import java.net.URISyntaxException;
 import java.sql.SQLException;
 import java.util.Collection;
 
+import pkgExceptions.InvalidPassportException;
 import pkgExceptions.InvalidWebAccountException;
 
 public interface IDatabase_Controller
@@ -16,7 +17,7 @@ public interface IDatabase_Controller
 
 	public void selectCreditCards() throws Exception;
 
-	public void selectPassports() throws SQLException;
+	public void selectPassports() throws SQLException, IOException, InvalidPassportException;
 
 	public void selectIdentities() throws SQLException;
 

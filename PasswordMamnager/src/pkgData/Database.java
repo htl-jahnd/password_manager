@@ -14,6 +14,7 @@ import java.util.Collection;
 import org.apache.commons.codec.binary.Base64;
 
 import pkgExceptions.InvalidCardException;
+import pkgExceptions.InvalidPassportException;
 import pkgExceptions.InvalidWebAccountException;
 import pkgExceptions.UserException;
 import pkgMisc.DateUtils;
@@ -77,7 +78,7 @@ public class Database implements IDatabase_Controller
 	}
 
 	@Override
-	public void selectPassports() throws SQLException
+	public void selectPassports() throws SQLException, IOException, InvalidPassportException
 	{
 		String stmtString = "SELECT firstName, surName, nationality, dateOfBirth, placeOfBirth, dateOfIssue, expirationDate, sex, authority, passportNumber, additionalInformation FROM passport WHERE username LIKE ?";
 
@@ -87,7 +88,8 @@ public class Database implements IDatabase_Controller
 		passports.clear();
 		while (rs.next())
 		{
-			//TODO
+			passports.add(new Passport(rs.getString("firstname"), rs.getString("surname"), rs.getString("nationality"), DateUtils.getLocalDateOfDate(rs.getDate("dateofbirth")), rs.getString("placeofbirth"), DateUtils.getLocalDateOfDate(rs.getDate("dateOfIssue")), DateUtils.getLocalDateOfDate(rs.getDate("expirationDate")), ESex.valueOf("sex"),
+					rs.getString("authority"), rs.getString("passportNumber"), rs.getString("additionalInformation")));
 		}
 
 	}
