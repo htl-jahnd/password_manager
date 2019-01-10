@@ -44,8 +44,11 @@ import pkgData.Identity;
 import pkgData.Note;
 import pkgData.Passport;
 import pkgData.WebAccount;
+import pkgExceptions.IdentityException;
 import pkgExceptions.InvalidCardException;
+import pkgExceptions.InvalidPassportException;
 import pkgExceptions.InvalidWebAccountException;
+import pkgExceptions.NoteException;
 import pkgMisc.DateUtils;
 import pkgMisc.ExceptionHandler;
 import pkgMisc.SystemClipboard;
@@ -592,42 +595,42 @@ public class Controller_PasswordManager
 		doSetListCellFactories();
 		doInsertTestData();
 
-		Thread selectThread = new Thread() {
-			public void run()
-			{
-				try
-				{
-					db.selectWebAccounts();
-					maskerPane.setProgress(0.2);
-					db.selectCreditCards();
-					maskerPane.setProgress(0.4);
-					db.selectPassports();
-					maskerPane.setProgress(0.6);
-					db.selectIdentities();
-					maskerPane.setProgress(0.8);
-					db.selectNotes();
-					maskerPane.setProgress(1);
-				} catch (Exception e)
-				{
-					ExceptionHandler.hanldeExpectedException("There was an error during loading data from database.",
-							e);
-				}
-			}
-		};
-		paneMaskerPane.setVisible(true);
-		selectThread.join();
-		selectThread.start();
-		
-		paneMaskerPane.setVisible(false);
-		listWebAccounts.addAll(db.getAccounts());
-
-		listCreditCards.addAll(db.getCreditCards());
-
-		listPassports.addAll(db.getPassports());
-
-		listIdentities.addAll(db.getIdentities());
-
-		listNotes.addAll(db.getNotes());
+//		Thread selectThread = new Thread() { // new anon thread for selecting from db while showing an masker pane in ui for better ux
+//			public void run()
+//			{
+//				try
+//				{
+//					db.selectWebAccounts();
+//					maskerPane.setProgress(0.2);
+//					db.selectCreditCards();
+//					maskerPane.setProgress(0.4);
+//					db.selectPassports();
+//					maskerPane.setProgress(0.6);
+//					db.selectIdentities();
+//					maskerPane.setProgress(0.8);
+//					db.selectNotes();
+//					maskerPane.setProgress(1);
+//				} catch (Exception e)
+//				{
+//					ExceptionHandler.hanldeExpectedException("There was an error during loading data from database.",
+//							e);
+//				}
+//			}
+//		};
+//		paneMaskerPane.setVisible(true);
+//		selectThread.join();
+//		selectThread.start();
+//		
+//		paneMaskerPane.setVisible(false);
+//		listWebAccounts.addAll(db.getAccounts());
+//
+//		listCreditCards.addAll(db.getCreditCards());
+//
+//		listPassports.addAll(db.getPassports());
+//
+//		listIdentities.addAll(db.getIdentities());
+//
+//		listNotes.addAll(db.getNotes());
 	}
 
 	@FXML
@@ -1016,7 +1019,11 @@ public class Controller_PasswordManager
 			{
 				SystemClipboard.copy(cmbxCreditCardProvider.getValue().toString());
 			}
-		} catch (Exception e)
+		} 
+		catch(InvalidCardException e) {
+			ExceptionHandler.hanldeExpectedException("Input error.", e);
+		}
+		catch (Exception e)
 		{
 			ExceptionHandler.hanldeUnexpectedException(e);
 		}
@@ -1186,7 +1193,11 @@ public class Controller_PasswordManager
 			{
 				SystemClipboard.copy(txtPassportPlaceOfBirth.getText());
 			}
-		} catch (Exception e)
+		} 
+		catch(InvalidPassportException e) {
+			ExceptionHandler.hanldeExpectedException("Input error.", e);
+		}
+		catch (Exception e)
 		{
 			ExceptionHandler.hanldeUnexpectedException(e);
 		}
@@ -1319,7 +1330,11 @@ public class Controller_PasswordManager
 			{
 				SystemClipboard.copy(txtIdentityZipCode.getText());
 			}
-		} catch (Exception e)
+		} 
+		catch(IdentityException e) {
+			ExceptionHandler.hanldeExpectedException("Input error.", e);
+		}
+		catch (Exception e)
 		{
 			ExceptionHandler.hanldeUnexpectedException(e);
 		}
@@ -1423,6 +1438,9 @@ public class Controller_PasswordManager
 		} catch (IOException e)
 		{
 			ExceptionHandler.hanldeUnexpectedException(e);
+		} catch (NoteException e)
+		{
+			ExceptionHandler.hanldeExpectedException("Input error.",e);
 		}
 	}
 
@@ -1647,6 +1665,38 @@ public class Controller_PasswordManager
 					// Add the values from our piece to the HBox
 					hBox.getChildren().addAll(iv,
 							new Label("   " + account.getFirstName() + " " + account.getSurName()));
+					// Set the HBox as the display
+					setGraphic(hBox);
+				}
+			}
+		});
+		
+		listViewNote.setCellFactory(listView -> new ListCell<Note>() {
+			@Override
+			protected void updateItem(Note pass, boolean empty)
+			{
+				super.updateItem(pass, empty);
+
+				if (empty)
+				{
+					setGraphic(null);
+				} else
+				{
+					// Create a HBox to hold our displayed value
+					HBox hBox = new HBox(2);
+					hBox.setAlignment(Pos.CENTER_LEFT);
+					ImageView iv=null;
+					try
+					{
+						iv = new ImageView(Note.getNoteImage());
+					} catch (IOException e)
+					{
+						ExceptionHandler.hanldeUnexpectedException(e);
+					}
+					iv.setFitHeight(25);
+					iv.setFitWidth(25);
+					// Add the values from our piece to the HBox
+					hBox.getChildren().addAll(iv, new Label("   " + pass.getTitle() ));
 					// Set the HBox as the display
 					setGraphic(hBox);
 				}

@@ -16,11 +16,11 @@ public interface IDatabase_Controller
 
 	public void selectCreditCards() throws Exception;
 
-	public void selectPassports();
+	public void selectPassports() throws SQLException;
 
-	public void selectIdentities();
+	public void selectIdentities() throws SQLException;
 
-	public void selectNotes();
+	public void selectNotes() throws SQLException;
 
 	// Web account
 	public void addWebAccount(WebAccount accountToAdd) throws SQLException;
@@ -41,7 +41,7 @@ public interface IDatabase_Controller
 
 	public void deltePassport(Passport passportToDelete) throws SQLException, Exception;
 
-	public void updatePassport(Passport currentPass) throws SQLException;
+	public void updatePassport(Passport currentPass) throws SQLException, Exception;
 
 	// Note
 	public void addNote(Note NoteToAdd) throws SQLException;

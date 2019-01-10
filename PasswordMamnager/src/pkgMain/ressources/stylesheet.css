@@ -15,20 +15,23 @@
 	-fx-font-family: "Heiti TC";
 }
 
-.dashboardTile:hover{
-	-fx-font-family: "Heiti TC";
-	-fx-background-color: rgb(152,185,255);
-	-fx-background-radius: 3px, 3px, 2px, 1px;
-	 -fx-padding: 15px;
-    -fx-border-insets: 5px;
-    -fx-background-insets: 5px;
+/* Styling the slider thumb */
+.jfx-slider > .thumb {
+     -fx-background-color:  #4286f4;
 }
 
-.dashboardTile{
-	 -fx-padding: 15px;
-    -fx-border-insets: 5px;
-    -fx-background-insets: 5px;
-    -fx-border-color: darkgrey ;
-    -fx-border-width: 1px;
-    -fx-border-style: line; 
+/* Styling the filled track */
+.jfx-slider > .colored-track {
+     -fx-background-color:  #4286f4;
+}
+
+/* Styling the animated thumb */
+.jfx-slider > .animated-thumb {
+     -fx-background-color:  #4286f4;
+}
+
+/* Styling the slider value text inside animated thumb */
+.jfx-slider .slider-value {
+     -fx-fill: white;
+     -fx-stroke: white;
 }

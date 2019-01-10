@@ -8,6 +8,8 @@ import javax.imageio.ImageIO;
 
 import javafx.embed.swing.SwingFXUtils;
 import javafx.scene.image.Image;
+import pkgExceptions.IdentityException;
+import pkgExceptions.InvalidPassportException;
 import pkgMisc.DateUtils;
 
 public class Identity
@@ -71,8 +73,10 @@ public class Identity
 		return firstName;
 	}
 
-	public void setFirstName(String firstName)
+	public void setFirstName(String firstName) throws IdentityException
 	{
+		if(firstName == null || firstName.trim().isEmpty()) 
+			throw new IdentityException("Firstname must not be empty.");
 		this.firstName = firstName;
 	}
 
@@ -81,8 +85,10 @@ public class Identity
 		return surName;
 	}
 
-	public void setSurName(String surName)
+	public void setSurName(String surName) throws IdentityException
 	{
+		if(surName == null || surName.trim().isEmpty()) 
+			throw new IdentityException("Surname must not be empty.");
 		this.surName = surName;
 	}
 
@@ -91,8 +97,10 @@ public class Identity
 		return streetAddress;
 	}
 
-	public void setStreetAddress(String streetAddress)
+	public void setStreetAddress(String streetAddress) throws IdentityException
 	{
+		if(streetAddress == null || streetAddress.trim().isEmpty()) 
+			throw new IdentityException("Street must not be empty.");
 		this.streetAddress = streetAddress;
 	}
 
@@ -101,8 +109,10 @@ public class Identity
 		return cityAddress;
 	}
 
-	public void setCityAddress(String cityAddress)
+	public void setCityAddress(String cityAddress) throws IdentityException
 	{
+		if(cityAddress == null || cityAddress.trim().isEmpty()) 
+			throw new IdentityException("City must not be empty.");
 		this.cityAddress = cityAddress;
 	}
 
@@ -111,8 +121,10 @@ public class Identity
 		return zipAddress;
 	}
 
-	public void setZipAddress(String zipAddress)
+	public void setZipAddress(String zipAddress) throws IdentityException
 	{
+		if(zipAddress == null || zipAddress.trim().isEmpty()) 
+			throw new IdentityException("Zip code must not be empty.");
 		this.zipAddress = zipAddress;
 	}
 
@@ -121,8 +133,10 @@ public class Identity
 		return stateAddress;
 	}
 
-	public void setStateAddress(String stateAddress)
+	public void setStateAddress(String stateAddress) throws IdentityException
 	{
+		if(stateAddress == null || stateAddress.trim().isEmpty()) 
+			throw new IdentityException("State must not be empty.");
 		this.stateAddress = stateAddress;
 	}
 
@@ -131,8 +145,12 @@ public class Identity
 		return dateOfBirth;
 	}
 
-	public void setDateOfBirth(LocalDate dateOfBirth)
+	public void setDateOfBirth(LocalDate dateOfBirth) throws IdentityException
 	{
+		if(dateOfBirth == null)
+			throw new IdentityException("Date of birth must not be null.");
+		else if(dateOfBirth.isAfter(LocalDate.now()))
+			throw new IdentityException("Date of birth must not be after today.");
 		this.dateOfBirth = dateOfBirth;
 	}
 
@@ -141,8 +159,10 @@ public class Identity
 		return country;
 	}
 
-	public void setCountry(String country)
+	public void setCountry(String country) throws IdentityException
 	{
+		if(country == null || country.trim().isEmpty()) 
+			throw new IdentityException("Country must not be empty.");
 		this.country = country;
 	}
 
@@ -164,7 +184,7 @@ public class Identity
 		return DateUtils.getStringOfLocalDate(dateOfBirth);
 	}
 	
-	public void setDateOfBirthOfString(String dateOfBirth) {
+	public void setDateOfBirthOfString(String dateOfBirth) throws IdentityException {
 		setDateOfBirth(DateUtils.getLocalDateOfString(dateOfBirth));
 	}
 

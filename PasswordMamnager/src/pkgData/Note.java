@@ -6,6 +6,7 @@ import javax.imageio.ImageIO;
 
 import javafx.embed.swing.SwingFXUtils;
 import javafx.scene.image.Image;
+import pkgExceptions.NoteException;
 
 public class Note
 {
@@ -34,20 +35,26 @@ public class Note
 	{
 		return text;
 	}
-	public void setText(String text)
+	public void setText(String text) throws NoteException
 	{
+		if(text == null || text.trim().isEmpty())
+			throw new NoteException("Text must not be empty");
 		this.text = text;
 	}
 	public String getTitle()
 	{
 		return title;
 	}
-	public void setTitle(String title)
+	public void setTitle(String title) throws NoteException
 	{
+		if(title == null || title.trim().isEmpty())
+			throw new NoteException("Title must not be empty");
 		this.title = title;
 	}
 	public static Image getNoteImage() throws IOException {
 		return SwingFXUtils.toFXImage(ImageIO.read(Note.class.getResourceAsStream("/pkgMain/ressources/images/sticky-note-solid.png")),null);
 	}
+	
+	
 	
 }

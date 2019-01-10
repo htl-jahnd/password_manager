@@ -67,8 +67,6 @@ abstract public class Card
 	{
 		if(expireDate == null)
 			throw new InvalidCardException("Expire date must not be null");
-		if(expireDate.isBefore(YearMonth.of(new Date().getYear(), new Date().getMonth())))
-			throw new InvalidCardException("Expire date must not be in the past");
 		this.expireDate = expireDate;
 	}
 
