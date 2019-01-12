@@ -579,7 +579,8 @@ public class Controller_PasswordManager
 	private Passport currentPass = null;
 	private Identity currentId = null;
 	private Note currentNote = null;
-
+	private boolean widthIncremented = false;
+	
 	// ============================================================
 	// ============================================================
 	// ====================== FXML METHODS ========================
@@ -678,8 +679,6 @@ public class Controller_PasswordManager
 
 		listWebAccounts.addAll(db.getAccounts());
 
-		System.out.println(db.getAccounts());
-
 		listCreditCards.addAll(db.getCreditCards());
 
 		listPassports.addAll(db.getPassports());
@@ -687,6 +686,8 @@ public class Controller_PasswordManager
 		listIdentities.addAll(db.getIdentities());
 
 		listNotes.addAll(db.getNotes());
+		
+		
 	}
 
 	@FXML
@@ -786,6 +787,7 @@ public class Controller_PasswordManager
 			{
 				paneNoteDetails.setVisible(false);
 			}
+			
 		} else if (event.getSource().equals(btnSettings))
 		{
 			scrollPaneSettings.setVisible(true);
@@ -801,7 +803,11 @@ public class Controller_PasswordManager
 			paneIdentityDetails.setVisible(false);
 			paneIdentityList.setVisible(false);
 		}
-
+		if(!widthIncremented) {
+			paneCreditCardDetails.getScene().getWindow().setWidth(paneCreditCardDetails.getScene().getWindow().getWidth()+1);
+			widthIncremented=true;
+		}
+		
 	}
 
 	// -------------------------------------------------------------
