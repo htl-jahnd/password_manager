@@ -28,7 +28,7 @@ public class Database implements IDatabase_Controller
 	private static Database instance = null;
 	private static Connection conn = null;
 	private static boolean isConnectionSet = false;
-	private static String connectionString = "192.168.128.152"; // TODO insert proper external ip address
+	private static String connectionString = "212.152.179.117"; // TODO insert proper external ip address
 	private static final ArrayList<WebAccount> accounts = new ArrayList<WebAccount>();
 	private static final ArrayList<CreditCard> creditCards = new ArrayList<CreditCard>();
 	private static final ArrayList<Passport> passports = new ArrayList<Passport>();
